@@ -1,0 +1,92 @@
+@{
+    ViewData["Title"] = "New Customer Invoice (POS)";
+    Layout = "_Layout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">New Invoice (Billing POS)</h4>
+    <a href="/Invoice/History" class="btn btn-outline-secondary">Invoice History</a>
+</div>
+
+<div class="row g-3">
+    <!-- Left Column: Customer details & product selector -->
+    <div class="col-md-5">
+        <div class="border p-3 rounded mb-3 bg-white">
+            <h6 class="fw-bold mb-3">1. Customer Information</h6>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Customer Name *</label>
+                <input type="text" class="form-control" id="txtCustName" placeholder="e.g. Ramesh Sharma" required />
+            </div>
+            <div class="mb-2">
+                <label class="form-label fw-semibold">Phone Number</label>
+                <input type="text" class="form-control" id="txtCustPhone" placeholder="e.g. 9876543210" />
+            </div>
+        </div>
+
+        <div class="border p-3 rounded bg-white">
+            <h6 class="fw-bold mb-3">2. Add Product to Bill</h6>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Search / Select Product *</label>
+                <input id="productDropdown" style="width: 100%;" />
+            </div>
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <label class="form-label fw-semibold">Quantity *</label>
+                    <input type="number" class="form-control" id="numQty" value="1" min="1" />
+                </div>
+                <div class="col-6">
+                    <label class="form-label fw-semibold">Unit Price (₹)</label>
+                    <input type="text" class="form-control bg-light" id="txtPrice" readonly value="0.00" />
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary w-100" onclick="addItemToCart()">+ Add to Cart</button>
+        </div>
+    </div>
+
+    <!-- Right Column: Cart items table & Billing summary -->
+    <div class="col-md-7">
+        <div class="border p-3 rounded bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0">3. Invoice Items Cart</h6>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearCart()">Clear</button>
+            </div>
+
+            <table class="table table-bordered align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Product</th>
+                        <th class="text-center" style="width:90px;">Qty</th>
+                        <th class="text-end" style="width:110px;">Price</th>
+                        <th class="text-end" style="width:110px;">Total</th>
+                        <th style="width:50px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="cartTableBody">
+                    <tr id="emptyCartRow">
+                        <td colspan="6" class="text-center text-muted py-4">No items added yet. Select a product and click Add to Cart.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                <div>
+                    Total Items: <strong id="lblTotalItems">0</strong>
+                </div>
+                <div class="text-end">
+                    <span class="fs-5 me-2">Grand Total:</span>
+                    <strong class="fs-4 text-primary" id="lblGrandTotal">₹0.00</strong>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-success w-100 mt-3 py-2 fs-5" onclick="submitInvoice()">
+                Confirm & Generate Invoice
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/invoice-create.js"></script>
+}
+

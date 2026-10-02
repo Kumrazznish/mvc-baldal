@@ -1,0 +1,89 @@
+@{
+    ViewData["Title"] = "Stores / Branches";
+    Layout = "_Layout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Stores & Branch Management</h4>
+    <button type="button" class="btn btn-primary" onclick="openCreateModal()">+ Create New Branch</button>
+</div>
+
+<div id="storesGrid"></div>
+
+<!-- Create Modal -->
+<div class="modal fade" id="createStoreModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Store Branch</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="createStoreForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Store Code *</label>
+                        <input type="text" class="form-control" name="storeCode" placeholder="e.g. BR02" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Store Name *</label>
+                        <input type="text" class="form-control" name="storeName" placeholder="e.g. West Branch" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Phone</label>
+                        <input type="text" class="form-control" name="phone" placeholder="9800000001" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Address</label>
+                        <input type="text" class="form-control" name="address" placeholder="Store address" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Store</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editStoreModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Store Branch</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editStoreForm">
+                <input type="hidden" name="storeId" id="edit_storeId" />
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Store Name *</label>
+                        <input type="text" class="form-control" name="storeName" id="edit_storeName" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Phone</label>
+                        <input type="text" class="form-control" name="phone" id="edit_phone" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Address</label>
+                        <input type="text" class="form-control" name="address" id="edit_address" />
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" name="isActive" id="edit_isActive" value="true" />
+                        <label class="form-check-label" for="edit_isActive">Active Branch</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Store</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/store.js"></script>
+}
+

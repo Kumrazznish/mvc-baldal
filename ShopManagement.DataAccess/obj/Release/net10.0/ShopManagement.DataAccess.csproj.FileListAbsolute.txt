@@ -1,0 +1,12 @@
+D:\Download\mv-baldal\ShopManagement.DataAccess\bin\Release\net10.0\ShopManagement.DataAccess.deps.json
+D:\Download\mv-baldal\ShopManagement.DataAccess\bin\Release\net10.0\ShopManagement.DataAccess.dll
+D:\Download\mv-baldal\ShopManagement.DataAccess\bin\Release\net10.0\ShopManagement.DataAccess.pdb
+D:\Download\mv-baldal\ShopManagement.DataAccess\obj\Release\net10.0\ShopManagement.DataAccess.csproj.AssemblyReference.cache
+D:\Download\mv-baldal\ShopManagement.DataAccess\obj\Release\net10.0\ShopManagement.DataAccess.GeneratedMSBuildEditorConfig.editorconfig
+D:\Download\mv-baldal\ShopManagement.DataAccess\obj\Release\net10.0\ShopManagement.DataAccess.AssemblyInfoInputs.cache
+D:\Download\mv-baldal\ShopManagement.DataAccess\obj\Release\net10.0\ShopManagement.DataAccess.AssemblyInfo.cs
+D:\Download\mv-baldal\ShopManagement.DataAccess\obj\Release\net10.0\ShopManagement.DataAccess.csproj.CoreCompileInputs.cache
+D:\Download\mv-baldal\ShopManagement.DataAccess\obj\Release\net10.0\ShopManagement.DataAccess.dll
+D:\Download\mv-baldal\ShopManagement.DataAccess\obj\Release\net10.0\refint\ShopManagement.DataAccess.dll
+D:\Download\mv-baldal\ShopManagement.DataAccess\obj\Release\net10.0\ShopManagement.DataAccess.pdb
+D:\Download\mv-baldal\ShopManagement.DataAccess\obj\Release\net10.0\ref\ShopManagement.DataAccess.dll

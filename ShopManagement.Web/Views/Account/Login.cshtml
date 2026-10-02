@@ -1,0 +1,60 @@
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div class="card border shadow-sm">
+                <div class="card-header bg-white border-bottom text-center py-3">
+                    <h5 class="fw-bold mb-0 text-dark">Shop Management</h5>
+                    <small class="text-muted">Sign in to your account</small>
+                </div>
+                <div class="card-body p-4">
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger py-2 small mb-3" role="alert">
+                            @ViewBag.Error
+                        </div>
+                    }
+
+                    <form method="post" action="/Account/Login">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Username</label>
+                            <input type="text" name="username" id="txtUsername" class="form-control" placeholder="Enter username" required autofocus />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Password</label>
+                            <input type="password" name="password" id="txtPassword" class="form-control" placeholder="Enter password" required />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2">
+                            Sign In
+                        </button>
+                    </form>
+
+                    <div class="mt-4 pt-3 border-top text-center">
+                        <div class="text-muted small mb-2">Demo Credentials:</div>
+                        <div class="btn-group btn-group-sm w-100">
+                            <button type="button" class="btn btn-outline-secondary" onclick="fillCredentials('admin', 'admin123')">
+                                Admin (admin / admin123)
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="fillCredentials('desk1', 'desk123')">
+                                Cashier (desk1 / desk123)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function fillCredentials(u, p) {
+        document.getElementById('txtUsername').value = u;
+        document.getElementById('txtPassword').value = p;
+    }
+</script>

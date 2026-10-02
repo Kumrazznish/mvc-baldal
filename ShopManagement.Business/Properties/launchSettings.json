@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ShopManagement.Business": {
+      "commandName": "Project"
+    },
+    "Profile 1": {
+      "commandName": "Project"
+    }
+  }
+}

@@ -1,0 +1,131 @@
+@using System.Data
+@model DataTable
+@{
+    ViewData["Title"] = "Dashboard Overview";
+    Layout = "_Layout";
+
+    long totalProducts = 0;
+    long lowStock = 0;
+    long totalInvoices = 0;
+    decimal totalRevenue = 0;
+    long totalEmployees = 0;
+
+    if (Model != null && Model.Rows.Count > 0)
+    {
+        var row = Model.Rows[0];
+        totalProducts = Convert.ToInt64(row["TotalProducts"]);
+        lowStock = Convert.ToInt64(row["LowStockProducts"]);
+        totalInvoices = Convert.ToInt64(row["TotalInvoices"]);
+        totalRevenue = Convert.ToDecimal(row["TotalRevenue"]);
+        totalEmployees = Convert.ToInt64(row["TotalEmployees"]);
+    }
+}
+
+<div class="row g-3 mb-4">
+    <!-- Total Products -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card card-custom p-3 h-100">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-medium text-uppercase">Total Inventory</span>
+                    <h3 class="fw-bold mt-1 mb-0 text-dark">@totalProducts</h3>
+                </div>
+                <div class="p-3 rounded-3" style="background-color: #e0e7ff; color: #4f46e5;">
+                    <i class="fa-solid fa-boxes-stacked fa-xl"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <a href="/Product" class="small text-primary text-decoration-none fw-semibold">
+                    View Products <i class="fa-solid fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low Stock Alert -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card card-custom p-3 h-100">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-medium text-uppercase">Low Stock Alert</span>
+                    <h3 class="fw-bold mt-1 mb-0 text-warning">@lowStock</h3>
+                </div>
+                <div class="p-3 rounded-3" style="background-color: #fef3c7; color: #d97706;">
+                    <i class="fa-solid fa-triangle-exclamation fa-xl"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <span class="text-muted small">&le; 10 units remaining</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Invoices -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card card-custom p-3 h-100">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-medium text-uppercase">Invoices Issued</span>
+                    <h3 class="fw-bold mt-1 mb-0 text-dark">@totalInvoices</h3>
+                </div>
+                <div class="p-3 rounded-3" style="background-color: #dcfce7; color: #16a34a;">
+                    <i class="fa-solid fa-file-invoice-dollar fa-xl"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <a href="/Invoice/History" class="small text-success text-decoration-none fw-semibold">
+                    View History <i class="fa-solid fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Revenue -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card card-custom p-3 h-100">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-medium text-uppercase">Total Sales</span>
+                    <h3 class="fw-bold mt-1 mb-0 text-dark">₹@totalRevenue.ToString("N2")</h3>
+                </div>
+                <div class="p-3 rounded-3" style="background-color: #f3e8ff; color: #9333ea;">
+                    <i class="fa-solid fa-indian-rupee-sign fa-xl"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <span class="text-muted small">Active Employees: <strong>@totalEmployees</strong></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Action Shortcuts -->
+<div class="card card-custom p-4 mb-4">
+    <h5 class="fw-bold mb-3"><i class="fa-solid fa-bolt me-2 text-primary"></i> Quick Operations</h5>
+    <div class="row g-3">
+        <div class="col-md-3">
+            <a href="/Invoice/Create" class="btn btn-primary w-100 py-3 d-flex flex-column align-items-center gap-2 rounded-3 shadow-sm">
+                <i class="fa-solid fa-receipt fa-2x"></i>
+                <span class="fw-semibold">Generate New Invoice</span>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="/Product" class="btn btn-outline-primary w-100 py-3 d-flex flex-column align-items-center gap-2 rounded-3">
+                <i class="fa-solid fa-box-open fa-2x"></i>
+                <span class="fw-semibold">Add / Update Product</span>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="/Product/Import" class="btn btn-outline-success w-100 py-3 d-flex flex-column align-items-center gap-2 rounded-3">
+                <i class="fa-solid fa-file-excel fa-2x"></i>
+                <span class="fw-semibold">Excel Bulk Import</span>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="/Employee" class="btn btn-outline-dark w-100 py-3 d-flex flex-column align-items-center gap-2 rounded-3">
+                <i class="fa-solid fa-user-plus fa-2x"></i>
+                <span class="fw-semibold">Create Desk Login</span>
+            </a>
+        </div>
+    </div>
+</div>

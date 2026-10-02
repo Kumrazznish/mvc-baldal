@@ -1,0 +1,15 @@
+D:\Download\mv-baldal\ShopManagement.Business\bin\Debug\net10.0\ShopManagement.Business.deps.json
+D:\Download\mv-baldal\ShopManagement.Business\bin\Debug\net10.0\ShopManagement.Business.dll
+D:\Download\mv-baldal\ShopManagement.Business\bin\Debug\net10.0\ShopManagement.Business.pdb
+D:\Download\mv-baldal\ShopManagement.Business\bin\Debug\net10.0\ShopManagement.DataAccess.dll
+D:\Download\mv-baldal\ShopManagement.Business\bin\Debug\net10.0\ShopManagement.DataAccess.pdb
+D:\Download\mv-baldal\ShopManagement.Business\obj\Debug\net10.0\ShopManagement.Business.csproj.AssemblyReference.cache
+D:\Download\mv-baldal\ShopManagement.Business\obj\Debug\net10.0\ShopManagement.Business.GeneratedMSBuildEditorConfig.editorconfig
+D:\Download\mv-baldal\ShopManagement.Business\obj\Debug\net10.0\ShopManagement.Business.AssemblyInfoInputs.cache
+D:\Download\mv-baldal\ShopManagement.Business\obj\Debug\net10.0\ShopManagement.Business.AssemblyInfo.cs
+D:\Download\mv-baldal\ShopManagement.Business\obj\Debug\net10.0\ShopManagement.Business.csproj.CoreCompileInputs.cache
+D:\Download\mv-baldal\ShopManagement.Business\obj\Debug\net10.0\ShopMana.8B07BEC3.Up2Date
+D:\Download\mv-baldal\ShopManagement.Business\obj\Debug\net10.0\ShopManagement.Business.dll
+D:\Download\mv-baldal\ShopManagement.Business\obj\Debug\net10.0\refint\ShopManagement.Business.dll
+D:\Download\mv-baldal\ShopManagement.Business\obj\Debug\net10.0\ShopManagement.Business.pdb
+D:\Download\mv-baldal\ShopManagement.Business\obj\Debug\net10.0\ref\ShopManagement.Business.dll

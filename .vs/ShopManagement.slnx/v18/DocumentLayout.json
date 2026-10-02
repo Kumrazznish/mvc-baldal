@@ -1,0 +1,105 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Download\\mv-baldal\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{5238418F-B490-DF63-9B8B-D2B889FFA80B}|ShopManagement.Web\\ShopManagement.Web.csproj|d:\\download\\mv-baldal\\shopmanagement.web\\shopmanagement.web.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{5238418F-B490-DF63-9B8B-D2B889FFA80B}|ShopManagement.Web\\ShopManagement.Web.csproj|solutionrelative:shopmanagement.web\\shopmanagement.web.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{06EE4173-2717-5828-780F-983D7067D748}|ShopManagement.DataAccess\\ShopManagement.DataAccess.csproj|d:\\download\\mv-baldal\\shopmanagement.dataaccess\\accountdal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{06EE4173-2717-5828-780F-983D7067D748}|ShopManagement.DataAccess\\ShopManagement.DataAccess.csproj|solutionrelative:shopmanagement.dataaccess\\accountdal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{06EE4173-2717-5828-780F-983D7067D748}|ShopManagement.DataAccess\\ShopManagement.DataAccess.csproj|d:\\download\\mv-baldal\\shopmanagement.dataaccess\\shopmanagement.dataaccess.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{06EE4173-2717-5828-780F-983D7067D748}|ShopManagement.DataAccess\\ShopManagement.DataAccess.csproj|solutionrelative:shopmanagement.dataaccess\\shopmanagement.dataaccess.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5238418F-B490-DF63-9B8B-D2B889FFA80B}|ShopManagement.Web\\ShopManagement.Web.csproj|d:\\download\\mv-baldal\\shopmanagement.web\\controllers\\invoicecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5238418F-B490-DF63-9B8B-D2B889FFA80B}|ShopManagement.Web\\ShopManagement.Web.csproj|solutionrelative:shopmanagement.web\\controllers\\invoicecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5238418F-B490-DF63-9B8B-D2B889FFA80B}|ShopManagement.Web\\ShopManagement.Web.csproj|d:\\download\\mv-baldal\\shopmanagement.web\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5238418F-B490-DF63-9B8B-D2B889FFA80B}|ShopManagement.Web\\ShopManagement.Web.csproj|solutionrelative:shopmanagement.web\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "InvoiceController.cs",
+              "DocumentMoniker": "D:\\Download\\mv-baldal\\ShopManagement.Web\\Controllers\\InvoiceController.cs",
+              "RelativeDocumentMoniker": "ShopManagement.Web\\Controllers\\InvoiceController.cs",
+              "ToolTip": "D:\\Download\\mv-baldal\\ShopManagement.Web\\Controllers\\InvoiceController.cs",
+              "RelativeToolTip": "ShopManagement.Web\\Controllers\\InvoiceController.cs",
+              "ViewState": "AgIAABkAAAAAAAAAAAAkwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-02T17:58:30.581Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AccountDAL.cs",
+              "DocumentMoniker": "D:\\Download\\mv-baldal\\ShopManagement.DataAccess\\AccountDAL.cs",
+              "RelativeDocumentMoniker": "ShopManagement.DataAccess\\AccountDAL.cs",
+              "ToolTip": "D:\\Download\\mv-baldal\\ShopManagement.DataAccess\\AccountDAL.cs",
+              "RelativeToolTip": "ShopManagement.DataAccess\\AccountDAL.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-01T19:14:51.792Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ShopManagement.DataAccess",
+              "DocumentMoniker": "D:\\Download\\mv-baldal\\ShopManagement.DataAccess\\ShopManagement.DataAccess.csproj",
+              "RelativeDocumentMoniker": "ShopManagement.DataAccess\\ShopManagement.DataAccess.csproj",
+              "ToolTip": "D:\\Download\\mv-baldal\\ShopManagement.DataAccess\\ShopManagement.DataAccess.csproj",
+              "RelativeToolTip": "ShopManagement.DataAccess\\ShopManagement.DataAccess.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-10-01T19:14:46.802Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AccountController.cs",
+              "DocumentMoniker": "D:\\Download\\mv-baldal\\ShopManagement.Web\\Controllers\\AccountController.cs",
+              "RelativeDocumentMoniker": "ShopManagement.Web\\Controllers\\AccountController.cs",
+              "ToolTip": "D:\\Download\\mv-baldal\\ShopManagement.Web\\Controllers\\AccountController.cs",
+              "RelativeToolTip": "ShopManagement.Web\\Controllers\\AccountController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-01T19:14:30.218Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ShopManagement.Web",
+              "DocumentMoniker": "D:\\Download\\mv-baldal\\ShopManagement.Web\\ShopManagement.Web.csproj",
+              "RelativeDocumentMoniker": "ShopManagement.Web\\ShopManagement.Web.csproj",
+              "ToolTip": "D:\\Download\\mv-baldal\\ShopManagement.Web\\ShopManagement.Web.csproj",
+              "RelativeToolTip": "ShopManagement.Web\\ShopManagement.Web.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-10-01T19:13:39.689Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

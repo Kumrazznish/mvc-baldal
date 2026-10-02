@@ -1,0 +1,126 @@
+@using System.Data
+@model DataTable
+@{
+    ViewData["Title"] = "Invoice Receipt";
+    Layout = "_Layout";
+    DataRow header = ViewBag.Header as DataRow;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4 no-print">
+    <div>
+        <a href="/Invoice/History" class="btn btn-outline-secondary btn-sm mb-2">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to Invoice History
+        </a>
+        <h4 class="fw-bold mb-0">Invoice Receipt #@(header != null ? header["InvoiceNo"] : "")</h4>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary" onclick="window.print()">
+            <i class="fa-solid fa-print me-1"></i> Print Invoice
+        </button>
+    </div>
+</div>
+
+<div class="card card-custom p-5 mx-auto shadow-sm" style="max-width: 820px; background: white;">
+    <!-- Invoice Header -->
+    <div class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="fa-solid fa-store fa-2x text-primary"></i>
+                <h3 class="fw-extrabold text-primary mb-0">ShopDesk Pro</h3>
+            </div>
+            <p class="text-muted small mb-0">Stationery & General Retail Store</p>
+            <p class="text-muted small mb-0">Email: billing@shopdesk.local | Phone: +91 98765 43210</p>
+        </div>
+        <div class="text-end">
+            <h4 class="fw-bold text-dark mb-1">INVOICE</h4>
+            <div class="badge bg-primary fs-6 px-3 py-2">@(header != null ? header["InvoiceNo"] : "")</div>
+            <div class="small text-muted mt-2">
+                Date: <strong>@(header != null && header["InvoiceDate"] != DBNull.Value ? Convert.ToDateTime(header["InvoiceDate"]).ToString("dd MMM yyyy, hh:mm tt") : "")</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer and Billed Info -->
+    <div class="row g-4 mb-4 p-3 bg-light rounded-3">
+        <div class="col-sm-6">
+            <div class="text-muted small fw-bold text-uppercase">Billed To (Customer):</div>
+            <h5 class="fw-bold text-dark mt-1 mb-1">@(header != null ? header["CustomerName"] : "")</h5>
+            <div class="text-muted small">
+                <i class="fa-solid fa-phone me-1"></i> @(header != null && header["CustomerPhone"] != DBNull.Value && !string.IsNullOrEmpty(header["CustomerPhone"].ToString()) ? header["CustomerPhone"] : "No phone provided")
+            </div>
+        </div>
+        <div class="col-sm-6 text-sm-end">
+            <div class="text-muted small fw-bold text-uppercase">Desk Operator / Cashier:</div>
+            <h6 class="fw-bold text-dark mt-1 mb-1">@(header != null ? header["CreatedByName"] : "")</h6>
+            <div class="text-muted small">Desk ID: @(header != null ? header["CreatedByUsername"] : "")</div>
+        </div>
+    </div>
+
+    <!-- Items Table -->
+    <div class="table-responsive mb-4">
+        <table class="table table-bordered align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 50px;">#</th>
+                    <th>Product Description</th>
+                    <th style="width: 120px;" class="text-center">SKU</th>
+                    <th style="width: 90px;" class="text-center">Quantity</th>
+                    <th style="width: 130px;" class="text-end">Unit Price</th>
+                    <th style="width: 140px;" class="text-end">Total Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int count = 1;
+                    if (Model != null)
+                    {
+                        foreach (DataRow row in Model.Rows)
+                        {
+                            <tr>
+                                <td>@count</td>
+                                <td>
+                                    <strong>@row["ProductName"]</strong>
+                                </td>
+                                <td class="text-center"><code>@row["ProductCode"]</code></td>
+                                <td class="text-center">@row["Quantity"]</td>
+                                <td class="text-end">₹@Convert.ToDecimal(row["UnitPrice"]).ToString("N2")</td>
+                                <td class="text-end fw-semibold">₹@Convert.ToDecimal(row["TotalAmount"]).ToString("N2")</td>
+                            </tr>
+                            count++;
+                        }
+                    }
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="5" class="text-end fs-6">Grand Total:</th>
+                    <th class="text-end fs-5 text-primary">₹@(header != null && header["TotalAmount"] != DBNull.Value ? Convert.ToDecimal(header["TotalAmount"]).ToString("N2") : "0.00")</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="border-top pt-3 text-center text-muted small">
+        <p class="mb-1">Thank you for shopping with us! Please retain this invoice for your records.</p>
+        <p class="mb-0">Powered by ShopDesk Pro 3-Tier Billing System</p>
+    </div>
+</div>
+
+<style>
+    @@media print {
+        .no-print, .sidebar, .top-navbar {
+            display: none !important;
+        }
+        .main-content {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .page-body {
+            padding: 0 !important;
+        }
+        .card-custom {
+            border: none !important;
+            box-shadow: none !important;
+        }
+    }
+</style>

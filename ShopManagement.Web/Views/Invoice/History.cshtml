@@ -1,0 +1,69 @@
+@{
+    ViewData["Title"] = "Invoice History";
+    Layout = "_Layout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Invoice History</h4>
+    <a href="/Invoice/Create" class="btn btn-primary">+ New Invoice (POS)</a>
+</div>
+
+<div id="invoicesGrid"></div>
+
+<!-- Invoice Details Modal -->
+<div class="modal fade" id="invoiceDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Invoice: <span id="modalInvoiceNo"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="printableInvoiceArea">
+                <div class="d-flex justify-content-between border-bottom pb-2 mb-3">
+                    <div>
+                        <h5 class="mb-0">Shop Management</h5>
+                        <div class="text-muted small">Sales Receipt</div>
+                    </div>
+                    <div class="text-end small">
+                        <div><strong>Invoice:</strong> <span id="infoInvNo"></span></div>
+                        <div><strong>Date:</strong> <span id="infoInvDate"></span></div>
+                        <div><strong>Cashier:</strong> <span id="infoBilledBy"></span></div>
+                    </div>
+                </div>
+
+                <div class="mb-3 small">
+                    <strong>Customer:</strong> <span id="infoCustName"></span> | 
+                    <strong>Phone:</strong> <span id="infoCustPhone"></span>
+                </div>
+
+                <table class="table table-bordered table-sm align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Product</th>
+                            <th class="text-center" style="width:80px;">Qty</th>
+                            <th class="text-end" style="width:110px;">Price</th>
+                            <th class="text-end" style="width:110px;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalInvoiceDetailsBody"></tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="4" class="text-end">Grand Total:</th>
+                            <th class="text-end" id="modalGrandTotal">₹0.00</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-outline-dark" onclick="printInvoiceModal()">Print Bill</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/invoice-history.js"></script>
+}
+
