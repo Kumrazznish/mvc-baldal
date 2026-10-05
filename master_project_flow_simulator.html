@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopManagement - Master Architecture & Code Flow Simulator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #070a13;
+            --bg-sidebar: #0d1322;
+            --bg-card: #151d30;
+            --bg-card-hover: #1c263e;
+            --bg-code: #080c16;
+            --border-dim: #1e293f;
+            --border-bright: #334155;
+            --accent-cyan: #00f2fe;
+            --accent-blue: #38bdf8;
+            --accent-purple: #c084fc;
+            --accent-pink: #f472b6;
+            --accent-green: #34d399;
+            --accent-yellow: #fbbf24;
+            --accent-red: #f87171;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --active-glow: 0 0 25px rgba(0, 242, 254, 0.45);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==========================================================================
+           HEADER & SCENARIO BAR
+           ========================================================================== */
+        header {
+            background: rgba(13, 19, 34, 0.95);
+            backdrop-filter: blur(16px);
+            border-bottom: 2px solid var(--border-dim);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-badge {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: #000;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 1.1rem;
+            padding: 6px 12px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
+        }
+
+        .logo-text h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(90deg, #fff, var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .scenario-tabs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #090e1a;
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid var(--border-dim);
+            overflow-x: auto;
+        }
+
+        .scenario-tab {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .scenario-tab:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .scenario-tab.active {
+            background: linear-gradient(135deg, #1e293b, #2563eb);
+            color: #fff;
+            border: 1px solid var(--accent-blue);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.35);
+        }
+
+        /* ==========================================================================
+           CONTROLS & BRANCH SWITCHER BAR
+           ========================================================================== */
+        .sub-bar {
+            background: #0e1526;
+            border-bottom: 1px solid var(--border-dim);
+            padding: 10px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            gap: 16px;
+        }
+
+        .branch-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .branch-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-yellow);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .branch-select {
+            background: #192238;
+            color: #f1f5f9;
+            border: 1px solid var(--accent-yellow);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.82rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-ctrl {
+            background: var(--bg-card);
+            border: 1px solid var(--border-bright);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-ctrl:hover {
+            border-color: var(--accent-cyan);
+            background: #1f2c4a;
+        }
+
+        .btn-primary-ctrl {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            border-color: var(--accent-blue);
+            color: #fff;
+        }
+
+        .step-counter {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.82rem;
+            color: var(--accent-cyan);
+            padding: 4px 10px;
+            background: rgba(0, 242, 254, 0.1);
+            border-radius: 6px;
+            border: 1px solid rgba(0, 242, 254, 0.3);
+        }
+
+        /* ==========================================================================
+           MAIN SPLIT WORKSPACE
+           ========================================================================== */
+        .workspace {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            flex: 1;
+            height: calc(100vh - 120px);
+            overflow: hidden;
+        }
+
+        @media (max-width: 1100px) {
+            .workspace {
+                grid-template-columns: 1fr;
+                overflow-y: auto;
+            }
+        }
+
+        /* LEFT PANEL: ARCHITECTURE TIERS & NODES */
+        .flow-panel {
+            background: var(--bg-body);
+            border-right: 2px solid var(--border-dim);
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .tier-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dim);
+            border-radius: 12px;
+            padding: 16px 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .tier-card.tier-active {
+            border-color: var(--accent-cyan);
+            background: #162444;
+            box-shadow: 0 0 30px rgba(0, 242, 254, 0.3);
+            transform: translateX(8px);
+        }
+
+        .tier-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .tier-badge {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tb-client { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+        .tb-js { background: rgba(251, 191, 36, 0.15); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
+        .tb-http { background: rgba(244, 114, 182, 0.15); color: var(--accent-pink); border: 1px solid var(--accent-pink); }
+        .tb-ctrl { background: rgba(192, 132, 252, 0.15); color: var(--accent-purple); border: 1px solid var(--accent-purple); }
+        .tb-bal { background: rgba(129, 140, 248, 0.15); color: #818cf8; border: 1px solid #818cf8; }
+        .tb-dal { background: rgba(52, 211, 153, 0.15); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .tb-db { background: rgba(248, 113, 113, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
+
+        .tier-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .tier-action-text {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            line-height: 1.4;
+        }
+
+        .tier-file-pill {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            background: #090e1a;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-dim);
+            align-self: flex-start;
+            margin-top: 8px;
+            display: inline-block;
+        }
+
+        /* CONNECTOR ARROW */
+        .tier-connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: var(--text-muted);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            margin: -6px 0;
+            transition: color 0.3s;
+        }
+
+        .tier-connector.conn-active {
+            color: var(--accent-cyan);
+            font-weight: 700;
+        }
+
+        .tier-connector .line {
+            height: 2px;
+            flex: 1;
+            background: var(--border-dim);
+        }
+
+        .tier-connector.conn-active .line {
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+        }
+
+        /* RIGHT PANEL: LIVE CODE & VARIABLES INSPECTOR */
+        .code-panel {
+            background: var(--bg-sidebar);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .code-panel-header {
+            background: #090e1a;
+            border-bottom: 1px solid var(--border-dim);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .code-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .code-file-name {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: var(--accent-cyan);
+            font-weight: 700;
+        }
+
+        .code-line-badge {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            background: #1e293b;
+            color: var(--accent-yellow);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .code-scroll-area {
+            flex: 1;
+            overflow: auto;
+            background: var(--bg-code);
+            padding: 16px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.86rem;
+            line-height: 1.6;
+        }
+
+        .code-line {
+            display: flex;
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .code-line:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .code-line.active-line {
+            background: rgba(0, 242, 254, 0.18);
+            border-left: 3px solid var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+            color: #fff !important;
+            font-weight: 600;
+        }
+
+        .line-num {
+            width: 40px;
+            color: #475569;
+            flex-shrink: 0;
+            text-align: right;
+            margin-right: 16px;
+        }
+
+        .line-content {
+            white-space: pre;
+            color: #cbd5e1;
+        }
+
+        /* BOTTOM INSPECTOR TRAY */
+        .inspector-tray {
+            background: #090e1a;
+            border-top: 1px solid var(--border-dim);
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 38%;
+            overflow-y: auto;
+        }
+
+        .tray-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 900px) {
+            .tray-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .tray-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dim);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .tray-title {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tt-vars { color: var(--accent-green); }
+        .tt-debug { color: var(--accent-yellow); }
+        .tt-explain { color: var(--accent-cyan); }
+
+        .vars-list {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.78rem;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .var-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+        }
+
+        .var-k { color: #38bdf8; }
+        .var-v { color: #fbbf24; }
+
+        .explain-text {
+            font-size: 0.82rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+
+        .debug-tip {
+            font-size: 0.8rem;
+            color: #fde047;
+            background: rgba(251, 191, 36, 0.1);
+            padding: 6px 10px;
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-yellow);
+            line-height: 1.4;
+        }
+
+        /* CODE SYNTAX COLORS */
+        .c-kw { color: #f472b6; font-weight: 600; }
+        .c-fn { color: #60a5fa; }
+        .c-st { color: #34d399; }
+        .c-nm { color: #fbbf24; }
+        .c-cm { color: #64748b; font-style: italic; }
+        .c-vr { color: #38bdf8; }
+    </style>
+</head>
+<body>
+
+    <!-- TOP HEADER -->
+    <header>
+        <div class="logo-area">
+            <div class="logo-badge">FLOW SIMULATOR</div>
+            <div class="logo-text">
+                <h1>ShopManagement Master Project Flow</h1>
+                <p>Interactive End-to-End Code, Tiers & Branching Engine</p>
+            </div>
+        </div>
+
+        <!-- SCENARIO SWITCHER TABS -->
+        <div class="scenario-tabs">
+            <button class="scenario-tab active" onclick="loadScenario('login')">🔐 1. Login & Redirection</button>
+            <button class="scenario-tab" onclick="loadScenario('productGrid')">📦 2. Product Grid & AJAX</button>
+            <button class="scenario-tab" onclick="loadScenario('excelImport')">📊 3. ClosedXML Excel Import</button>
+            <button class="scenario-tab" onclick="loadScenario('productAdd')">🖼️ 4. Add Product & Image</button>
+            <button class="scenario-tab" onclick="loadScenario('billing')">🧾 5. Billing & TVP Invoice</button>
+            <button class="scenario-tab" onclick="loadScenario('storeEmployee')">🏪 6. Store & Employee</button>
+        </div>
+    </header>
+
+    <!-- SUB-BAR CONTROLS & BRANCH SELECTOR -->
+    <div class="sub-bar">
+        <div class="branch-controls">
+            <span class="branch-label">🔀 Branch Condition (If-Else):</span>
+            <select id="branchSelector" class="branch-select" onchange="changeBranch(this.value)">
+                <!-- Dynamically populated based on active scenario -->
+            </select>
+        </div>
+
+        <div class="player-controls">
+            <button class="btn-ctrl" onclick="prevStep()">⏮️ Prev</button>
+            <button id="playBtn" class="btn-ctrl btn-primary-ctrl" onclick="togglePlay()">▶️ Auto Play</button>
+            <button class="btn-ctrl" onclick="nextStep()">Next ⏭️</button>
+            <button class="btn-ctrl" onclick="resetFlow()">🔄 Reset</button>
+            <span id="stepCounter" class="step-counter">Step 1 of 6</span>
+        </div>
+    </div>
+
+    <!-- MAIN WORKSPACE -->
+    <div class="workspace">
+
+        <!-- LEFT: ARCHITECTURE TIERS & ACTIVE NODES -->
+        <div class="flow-panel" id="tiersContainer">
+            <!-- Dynamically populated with Tier Cards -->
+        </div>
+
+        <!-- RIGHT: SYNCHRONIZED CODE & VARIABLES INSPECTOR -->
+        <div class="code-panel">
+            <div class="code-panel-header">
+                <div class="code-meta">
+                    <span id="codeFileName" class="code-file-name">AccountController.cs</span>
+                    <span id="codeLineBadge" class="code-line-badge">Line 27</span>
+                </div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">⚡ Synchronized Active Code</div>
+            </div>
+
+            <!-- SCROLLABLE CODE BOX -->
+            <div class="code-scroll-area" id="codeScrollBox">
+                <!-- Dynamically populated lines -->
+            </div>
+
+            <!-- BOTTOM INSPECTOR TRAY -->
+            <div class="inspector-tray">
+                <div class="tray-card">
+                    <div class="tray-title tt-explain">💡 What is happening right now?</div>
+                    <div id="stepExplanation" class="explain-text">
+                        User clicks Login button.
+                    </div>
+                </div>
+
+                <div class="tray-grid">
+                    <div class="tray-card">
+                        <div class="tray-title tt-vars">🔍 Live Memory Variables (In RAM)</div>
+                        <div class="vars-list" id="varsList">
+                            <!-- Populated with live variables -->
+                        </div>
+                    </div>
+
+                    <div class="tray-card">
+                        <div class="tray-title tt-debug">🐞 DevTools / IDE Debugging Blueprint</div>
+                        <div id="debugTipText" class="debug-tip">
+                            Put breakpoint on line 27 in AccountController.cs
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==========================================================================
+         SIMULATOR DATA ENGINE & SCENARIOS
+         ========================================================================== -->
+    <script>
+        const SCENARIOS = {
+            // -------------------------------------------------------------
+            // SCENARIO 1: LOGIN & ROLE ROUTING
+            // -------------------------------------------------------------
+            login: {
+                title: "Login Authentication & Role Redirection",
+                branches: [
+                    { id: "admin", label: "Scenario A: Valid Admin Credentials (admin@shop.com)" },
+                    { id: "employee", label: "Scenario B: Valid Employee Credentials (emp1@shop.com)" },
+                    { id: "invalid", label: "Scenario C: Wrong Password / User Not Found" }
+                ],
+                steps: {
+                    admin: [
+                        {
+                            tierId: "client",
+                            tierBadge: "Client Browser",
+                            tierBadgeClass: "tb-client",
+                            title: "1. User Enters Credentials & Clicks Submit",
+                            action: "User enters email='admin@shop.com' and password='Password123' in Login.cshtml. Button type='submit' triggers enclosing HTML Form.",
+                            file: "Views/Account/Login.cshtml",
+                            codeFile: "Views/Account/Login.cshtml",
+                            lineBadge: "Line 20-60",
+                            codeSnippet: [
+                                `<span class="c-cm">&lt;!-- Views/Account/Login.cshtml --&gt;</span>`,
+                                `&lt;<span class="c-kw">form</span> <span class="c-vr">asp-controller</span>=<span class="c-st">"Account"</span> <span class="c-vr">asp-action</span>=<span class="c-st">"Login"</span> <span class="c-vr">method</span>=<span class="c-st">"post"</span>&gt;`,
+                                `    @Html.AntiForgeryToken()`,
+                                `    &lt;<span class="c-kw">input</span> <span class="c-vr">name</span>=<span class="c-st">"email"</span> <span class="c-vr">type</span>=<span class="c-st">"email"</span> <span class="c-vr">value</span>=<span class="c-st">"admin@shop.com"</span> /&gt;`,
+                                `    &lt;<span class="c-kw">input</span> <span class="c-vr">name</span>=<span class="c-st">"password"</span> <span class="c-vr">type</span>=<span class="c-st">"password"</span> /&gt;`,
+                                `    &lt;<span class="c-kw">button</span> <span class="c-vr">type</span>=<span class="c-st">"submit"</span> <span class="c-vr">class</span>=<span class="c-st">"login-button"</span>&gt;Login&lt;/<span class="c-kw">button</span>&gt;`,
+                                `&lt;/<span class="c-kw">form</span>&gt;`
+                            ],
+                            activeLineIndex: 5,
+                            explain: "Button par koi JS click event nahi hai. Browser ka built-in standard rule hai ki type='submit' apne parent &lt;form&gt; ke action='/Account/Login' par HTTP POST request bhejta hai.",
+                            vars: [
+                                { k: "Form Action", v: "\"/Account/Login\"" },
+                                { k: "HTTP Method", v: "\"POST\"" },
+                                { k: "Payload", v: "email=admin@shop.com&password=***" }
+                            ],
+                            debug: "Browser F12 -> Network tab me 'Preserve log' checkbox ON karein taaki redirect hone ke baad bhi request gayab na ho!"
+                        },
+                        {
+                            tierId: "http",
+                            tierBadge: "HTTP Wire Protocol",
+                            tierBadgeClass: "tb-http",
+                            title: "2. Form Data Travels Across Network",
+                            action: "Browser packages form fields into an 'application/x-www-form-urlencoded' packet with AntiForgeryToken cookie.",
+                            file: "HTTP POST /Account/Login",
+                            codeFile: "Network Payload",
+                            lineBadge: "HTTP 1.1 POST",
+                            codeSnippet: [
+                                `POST /Account/Login HTTP/1.1`,
+                                `Host: localhost:5271`,
+                                `Content-Type: application/x-www-form-urlencoded`,
+                                `Cookie: .AspNetCore.Antiforgery.XYZ=abc123...`,
+                                ``,
+                                `email=admin%40shop.com&password=Password123&__RequestVerificationToken=CfDJ8...`
+                            ],
+                            activeLineIndex: 5,
+                            explain: "ASP.NET Core Routing engine incoming request ke URL aur POST verb ko inspect karke match karta hai.",
+                            vars: [
+                                { k: "Status", v: "Transmitting" },
+                                { k: "Target Controller", v: "AccountController" },
+                                { k: "Target Action", v: "Login([HttpPost])" }
+                            ],
+                            debug: "Network Tab me request par click karke Headers aur Payload tab me exact sent parameters verify karein."
+                        },
+                        {
+                            tierId: "ctrl",
+                            tierBadge: "Controller Layer",
+                            tierBadgeClass: "tb-ctrl",
+                            title: "3. AccountController Receives & Validates",
+                            action: "AccountController.Login() model binder inputs ko parameters me inject karta hai aur AccountBAL ko call karta hai.",
+                            file: "Controllers/AccountController.cs",
+                            codeFile: "AccountController.cs",
+                            lineBadge: "Line 27-43",
+                            codeSnippet: [
+                                `[<span class="c-fn">HttpPost</span>]`,
+                                `[<span class="c-fn">ValidateAntiForgeryToken</span>]`,
+                                `<span class="c-kw">public</span> IActionResult <span class="c-fn">Login</span>(<span class="c-kw">string</span> email, <span class="c-kw">string</span> password)`,
+                                `{`,
+                                `    <span class="c-kw">if</span> (<span class="c-kw">string</span>.<span class="c-fn">IsNullOrWhiteSpace</span>(email) || <span class="c-kw">string</span>.<span class="c-fn">IsNullOrWhiteSpace</span>(password))`,
+                                `        <span class="c-kw">return</span> <span class="c-fn">View</span>();`,
+                                ``,
+                                `    DataRow? user = _accountBAL.<span class="c-fn">ValidateLogin</span>(email.<span class="c-fn">Trim</span>(), password);`,
+                                `    <span class="c-cm">// Checks credentials in BAL/DAL</span>`
+                            ],
+                            activeLineIndex: 7,
+                            explain: "Controller check karta hai ki fields blank na ho. Phir business logic layer (_accountBAL) ko ValidateLogin(email, password) pass karta hai.",
+                            vars: [
+                                { k: "email", v: "\"admin@shop.com\"" },
+                                { k: "password", v: "\"Password123\"" },
+                                { k: "Anti-Forgery", v: "Valid" }
+                            ],
+                            debug: "IDE me AccountController.cs Line 27 par F9 se breakpoint lagayein."
+                        },
+                        {
+                            tierId: "dal",
+                            tierBadge: "BAL & DAL Layer",
+                            tierBadgeClass: "tb-dal",
+                            title: "4. AccountBAL & AccountDAL Trigger Stored Proc",
+                            action: "AccountDAL executes Stored Procedure SP_User_ValidateLogin with SqlParameter @Email.",
+                            file: "ShopManagement.DataAccess/AccountDAL.cs",
+                            codeFile: "AccountDAL.cs",
+                            lineBadge: "Line 25-45",
+                            codeSnippet: [
+                                `<span class="c-kw">public</span> DataRow? <span class="c-fn">ValidateLogin</span>(<span class="c-kw">string</span> email, <span class="c-kw">string</span> password)`,
+                                `{`,
+                                `    SqlParameter[] parameters = {`,
+                                `        <span class="c-kw">new</span> <span class="c-fn">SqlParameter</span>(<span class="c-st">"@Email"</span>, email)`,
+                                `    };`,
+                                `    DataTable dt = _dbHelper.<span class="c-fn">ExecuteStoredProcedureDataTable</span>(<span class="c-st">"SP_User_ValidateLogin"</span>, parameters);`,
+                                `    <span class="c-kw">if</span> (dt.Rows.Count == <span class="c-nm">0</span>) <span class="c-kw">return null</span>;`,
+                                `    <span class="c-kw">return</span> dt.Rows[<span class="c-nm">0</span>];`,
+                                `}`
+                            ],
+                            activeLineIndex: 5,
+                            explain: "DbHelper ADO.NET connection open karta hai aur SP_User_ValidateLogin execute karke DataTable me row return karta hai.",
+                            vars: [
+                                { k: "@Email", v: "\"admin@shop.com\"" },
+                                { k: "DataTable Rows", v: "1 (User Found)" },
+                                { k: "Role Returned", v: "\"Admin\"" }
+                            ],
+                            debug: "DbHelper.cs ke ExecuteStoredProcedureDataTable method ke adapter.Fill(dataTable) par check karein."
+                        },
+                        {
+                            tierId: "ctrl2",
+                            tierBadge: "Session & Routing",
+                            tierBadgeClass: "tb-ctrl",
+                            title: "5. Session Stored & Admin Redirect Issued",
+                            action: "Controller stores UserId, Name, Email, Role in HttpContext.Session. Because role is 'Admin', returns RedirectToAction('Index', 'Dashboard').",
+                            file: "Controllers/AccountController.cs",
+                            codeFile: "AccountController.cs",
+                            lineBadge: "Line 55-97",
+                            codeSnippet: [
+                                `HttpContext.Session.<span class="c-fn">SetInt32</span>(<span class="c-st">"UserId"</span>, Convert.<span class="c-fn">ToInt32</span>(user[<span class="c-st">"UserId"</span>]));`,
+                                `HttpContext.Session.<span class="c-fn">SetString</span>(<span class="c-st">"Role"</span>, role);`,
+                                ``,
+                                `<span class="c-kw">if</span> (<span class="c-kw">string</span>.<span class="c-fn">Equals</span>(role, <span class="c-st">"Admin"</span>, StringComparison.OrdinalIgnoreCase))`,
+                                `{`,
+                                `    <span class="c-kw">return</span> <span class="c-fn">RedirectToAction</span>(<span class="c-st">"Index"</span>, <span class="c-st">"Dashboard"</span>);`,
+                                `}`
+                            ],
+                            activeLineIndex: 5,
+                            explain: "Role check matching: role == 'Admin' true evaluate hua. Browser ko HTTP 302 Found response milta hai with Location: /Dashboard/Index.",
+                            vars: [
+                                { k: "Session[\"UserId\"]", v: "1" },
+                                { k: "Session[\"Role\"]", v: "\"Admin\"" },
+                                { k: "HTTP Status", v: "302 Redirect" }
+                            ],
+                            debug: "Watch window me 'role' variable ko inspect karein."
+                        },
+                        {
+                            tierId: "client2",
+                            tierBadge: "Final View",
+                            tierBadgeClass: "tb-client",
+                            title: "6. Admin Dashboard Renders",
+                            action: "Browser follows 302 redirect and requests GET /Dashboard/Index. DashboardController loads KPIs and renders Dashboard.",
+                            file: "Views/Dashboard/Index.cshtml",
+                            codeFile: "DashboardController.cs",
+                            lineBadge: "Line 10-15",
+                            codeSnippet: [
+                                `[<span class="c-fn">HttpGet</span>]`,
+                                `<span class="c-kw">public</span> IActionResult <span class="c-fn">Index</span>()`,
+                                `{`,
+                                `    <span class="c-cm">// Admin logged in successfully!</span>`,
+                                `    <span class="c-kw">return</span> <span class="c-fn">View</span>();`,
+                                `}`
+                            ],
+                            activeLineIndex: 4,
+                            explain: "Login cycle successfully complete ho gaya! Admin Dashboard screen par render ho chuka hai.",
+                            vars: [
+                                { k: "Current URL", v: "\"/Dashboard/Index\"" },
+                                { k: "Auth State", v: "Authenticated (Admin)" }
+                            ],
+                            debug: "Screen par Dashboard title aur sidebar check karein."
+                        }
+                    ],
+                    invalid: [
+                        {
+                            tierId: "client",
+                            tierBadge: "Client Browser",
+                            tierBadgeClass: "tb-client",
+                            title: "1. User Enters Wrong Password & Submits",
+                            action: "User enters email='admin@shop.com' and wrong password='123'. Form submits to /Account/Login.",
+                            file: "Views/Account/Login.cshtml",
+                            codeFile: "Views/Account/Login.cshtml",
+                            lineBadge: "Line 57",
+                            codeSnippet: [
+                                `&lt;<span class="c-kw">button</span> <span class="c-vr">type</span>=<span class="c-st">"submit"</span> <span class="c-vr">class</span>=<span class="c-st">"login-button"</span>&gt;Login&lt;/<span class="c-kw">button</span>&gt;`
+                            ],
+                            activeLineIndex: 0,
+                            explain: "Form submits via HTTP POST to /Account/Login.",
+                            vars: [{ k: "email", v: "\"admin@shop.com\"" }, { k: "password", v: "\"wrong_password\"" }],
+                            debug: "Network tab POST request."
+                        },
+                        {
+                            tierId: "ctrl",
+                            tierBadge: "Controller & BAL",
+                            tierBadgeClass: "tb-ctrl",
+                            title: "2. Database Returns No Match (user == null)",
+                            action: "Password validation fails in BAL/DAL. DataRow? user returns null.",
+                            file: "Controllers/AccountController.cs",
+                            codeFile: "AccountController.cs",
+                            lineBadge: "Line 45-51",
+                            codeSnippet: [
+                                `DataRow? user = _accountBAL.<span class="c-fn">ValidateLogin</span>(email.<span class="c-fn">Trim</span>(), password);`,
+                                ``,
+                                `<span class="c-kw">if</span> (user == <span class="c-kw">null</span>)`,
+                                `{`,
+                                `    ViewBag.ErrorMessage = <span class="c-st">"Invalid email or password."</span>;`,
+                                `    <span class="c-kw">return</span> <span class="c-fn">View</span>();`,
+                                `}`
+                            ],
+                            activeLineIndex: 4,
+                            explain: "Branch Decision: user == null is true. Controller does NOT create session and does NOT redirect. It sets ViewBag.ErrorMessage.",
+                            vars: [
+                                { k: "user", v: "null" },
+                                { k: "ViewBag.ErrorMessage", v: "\"Invalid email or password.\"" }
+                            ],
+                            debug: "Breakpoint on Line 45 in AccountController.cs. Notice 'user' is null."
+                        },
+                        {
+                            tierId: "client2",
+                            tierBadge: "View Re-Render",
+                            tierBadgeClass: "tb-client",
+                            title: "3. Login Screen Shows Red Error Alert",
+                            action: "Login.cshtml renders ViewBag.ErrorMessage inside message-error div. User stays on login screen.",
+                            file: "Views/Account/Login.cshtml",
+                            codeFile: "Login.cshtml",
+                            lineBadge: "Line 13-18",
+                            codeSnippet: [
+                                `@if (ViewBag.ErrorMessage != null)`,
+                                `{`,
+                                `    &lt;<span class="c-kw">div</span> <span class="c-vr">class</span>=<span class="c-st">"message-error"</span>&gt;`,
+                                `        @ViewBag.ErrorMessage`,
+                                `    &lt;/<span class="c-kw">div</span>&gt;`,
+                                `}`
+                            ],
+                            activeLineIndex: 3,
+                            explain: "User ko screen par red banner dikhta hai: 'Invalid email or password'. Flow terminates safely.",
+                            vars: [{ k: "HTTP Status", v: "200 OK (View returned)" }, { k: "Session", v: "Empty" }],
+                            debug: "Inspect element on .message-error div."
+                        }
+                    ]
+                }
+            },
+
+            // -------------------------------------------------------------
+            // SCENARIO 3: CLOSEDXML EXCEL IMPORT
+            // -------------------------------------------------------------
+            excelImport: {
+                title: "ClosedXML Excel Batch Import Processing",
+                branches: [
+                    { id: "validRow", label: "Scenario A: Valid Excel Row (ProductCode='P010', Qty=10, Price=150.00)" },
+                    { id: "corruptRow", label: "Scenario B: Invalid/Corrupt Row (Price='abc' or Negative Qty) -> Catch & Skip" },
+                    { id: "emptyRow", label: "Scenario C: Completely Blank Row -> Skip via continue" }
+                ],
+                steps: {
+                    validRow: [
+                        {
+                            tierId: "client",
+                            tierBadge: "Client Browser",
+                            tierBadgeClass: "tb-client",
+                            title: "1. User Selects .xlsx File & Submits",
+                            action: "User browses file 'Products_Stock.xlsx' and clicks Import button.",
+                            file: "Views/Product/Import.cshtml",
+                            codeFile: "Import.cshtml",
+                            lineBadge: "Line 20-30",
+                            codeSnippet: [
+                                `&lt;<span class="c-kw">form</span> <span class="c-vr">asp-action</span>=<span class="c-st">"Import"</span> <span class="c-vr">method</span>=<span class="c-st">"post"</span> <span class="c-vr">enctype</span>=<span class="c-st">"multipart/form-data"</span>&gt;`,
+                                `    &lt;<span class="c-kw">input</span> <span class="c-vr">type</span>=<span class="c-st">"file"</span> <span class="c-vr">name</span>=<span class="c-st">"excelFile"</span> <span class="c-vr">accept</span>=<span class="c-st">".xlsx"</span> /&gt;`,
+                                `    &lt;<span class="c-kw">button</span> <span class="c-vr">type</span>=<span class="c-st">"submit"</span>&gt;Import&lt;/<span class="c-kw">button</span>&gt;`,
+                                `&lt;/<span class="c-kw">form</span>&gt;`
+                            ],
+                            activeLineIndex: 2,
+                            explain: "Form submits binary data as multipart/form-data to POST /Product/Import.",
+                            vars: [{ k: "File", v: "\"Products_Stock.xlsx\"" }, { k: "Size", v: "24.5 KB" }],
+                            debug: "Check Network tab POST /Product/Import payload."
+                        },
+                        {
+                            tierId: "ctrl",
+                            tierBadge: "ClosedXML Engine",
+                            tierBadgeClass: "tb-ctrl",
+                            title: "2. OpenReadStream() & XLWorkbook Creation",
+                            action: "ProductController opens memory stream without saving to disk and initializes ClosedXML XLWorkbook.",
+                            file: "Controllers/ProductController.cs",
+                            codeFile: "ProductController.cs",
+                            lineBadge: "Line 218-225",
+                            codeSnippet: [
+                                `<span class="c-kw">using var</span> stream = excelFile.<span class="c-fn">OpenReadStream</span>();`,
+                                `<span class="c-kw">using var</span> workbook = <span class="c-kw">new</span> <span class="c-fn">XLWorkbook</span>(stream);`,
+                                `<span class="c-kw">var</span> worksheet = workbook.Worksheets.<span class="c-fn">FirstOrDefault</span>();`,
+                                `<span class="c-kw">int</span> lastRow = worksheet.<span class="c-fn">LastRowUsed</span>()?.<span class="c-fn">RowNumber</span>() ?? <span class="c-nm">0</span>;`
+                            ],
+                            activeLineIndex: 3,
+                            explain: "Disk I/O save hoti hai! ClosedXML direct RAM me Excel file ke rows aur columns read karta hai. LastRowUsed() se aakhri row number (e.g. 5) milta hai.",
+                            vars: [
+                                { k: "workbook.Worksheets.Count", v: "1" },
+                                { k: "lastRow", v: "5" },
+                                { k: "successCount", v: "0" },
+                                { k: "errorCount", v: "0" }
+                            ],
+                            debug: "Breakpoint on line 218 in ProductController.cs. Inspect 'worksheet'."
+                        },
+                        {
+                            tierId: "ctrl2",
+                            tierBadge: "Row-by-Row Loop",
+                            tierBadgeClass: "tb-ctrl",
+                            title: "3. Cell Extraction & Type Validation (Row 2)",
+                            action: "Reads Cell(2, 1) to Cell(2, 4). Validates text and parses quantity and price using int.TryParse and decimal.TryParse.",
+                            file: "Controllers/ProductController.cs",
+                            codeFile: "ProductController.cs",
+                            lineBadge: "Line 254-325",
+                            codeSnippet: [
+                                `<span class="c-kw">for</span> (<span class="c-kw">int</span> rowNumber = <span class="c-nm">2</span>; rowNumber &lt;= lastRow; rowNumber++) {`,
+                                `    <span class="c-kw">string</span> productCode = worksheet.<span class="c-fn">Cell</span>(rowNumber, <span class="c-nm">1</span>).<span class="c-fn">GetString</span>().<span class="c-fn">Trim</span>();`,
+                                `    <span class="c-kw">string</span> productName = worksheet.<span class="c-fn">Cell</span>(rowNumber, <span class="c-nm">2</span>).<span class="c-fn">GetString</span>().<span class="c-fn">Trim</span>();`,
+                                `    <span class="c-kw">int</span>.TryParse(worksheet.<span class="c-fn">Cell</span>(rowNumber, <span class="c-nm">3</span>).<span class="c-fn">GetString</span>(), <span class="c-kw">out int</span> quantity);`,
+                                `    <span class="c-kw">decimal</span>.TryParse(worksheet.<span class="c-fn">Cell</span>(rowNumber, <span class="c-nm">4</span>).<span class="c-fn">GetString</span>(), <span class="c-kw">out decimal</span> price);`
+                            ],
+                            activeLineIndex: 4,
+                            explain: "Defensive Parsing: Agar quantity ya price me galti ho toh TryParse false dega. But yahan data valid hai (quantity=10, price=150.00).",
+                            vars: [
+                                { k: "productCode", v: "\"P010\"" },
+                                { k: "productName", v: "\"Wireless Mouse\"" },
+                                { k: "quantity", v: "10" },
+                                { k: "price", v: "150.00M" }
+                            ],
+                            debug: "Loop me rowNumber=2 par watch variables set karein."
+                        },
+                        {
+                            tierId: "dal",
+                            tierBadge: "Database Save",
+                            tierBadgeClass: "tb-dal",
+                            title: "4. BAL & DAL SaveProduct Invocation",
+                            action: "_productBAL.SaveProduct(...) executes SP_Product_Save to insert record into dbo.Products.",
+                            file: "ShopManagement.DataAccess/ProductDAL.cs",
+                            codeFile: "ProductDAL.cs",
+                            lineBadge: "Line 91-96",
+                            codeSnippet: [
+                                `_dbHelper.<span class="c-fn">ExecuteStoredProcedureDataTable</span>(`,
+                                `    <span class="c-st">"SP_Product_Save"</span>,`,
+                                `    parameters`,
+                                `);`,
+                                `successCount++;`
+                            ],
+                            activeLineIndex: 4,
+                            explain: "Database insert successful! successCount increment hoke 1 ho gaya.",
+                            vars: [
+                                { k: "Stored Proc", v: "\"SP_Product_Save\"" },
+                                { k: "successCount", v: "1" }
+                            ],
+                            debug: "SQL Server Profiler me SP_Product_Save check karein."
+                        },
+                        {
+                            tierId: "client2",
+                            tierBadge: "Notification",
+                            tierBadgeClass: "tb-client",
+                            title: "5. Batch Complete & Success Notification",
+                            action: "Controller sets TempData['SuccessMessage'] = '4 product row(s) imported successfully.' and redirects to Dashboard.",
+                            file: "Views/Dashboard/Index.cshtml",
+                            codeFile: "ProductController.cs",
+                            lineBadge: "Line 350-362",
+                            codeSnippet: [
+                                `TempData[<span class="c-st">"SuccessMessage"</span>] = $\<span class="c-st">"{successCount} product row(s) imported successfully."</span>;`,
+                                `<span class="c-kw">return</span> <span class="c-fn">RedirectToAction</span>(<span class="c-st">"Index"</span>, <span class="c-st">"Dashboard"</span>);`
+                            ],
+                            activeLineIndex: 1,
+                            explain: "Import process finished smoothly. User sees green alert banner on Dashboard.",
+                            vars: [
+                                { k: "successCount", v: "4" },
+                                { k: "errorCount", v: "0" }
+                            ],
+                            debug: "Dashboard page me green banner observe karein."
+                        }
+                    ],
+                    corruptRow: [
+                        {
+                            tierId: "ctrl",
+                            tierBadge: "ClosedXML Engine",
+                            tierBadgeClass: "tb-ctrl",
+                            title: "1. Parsing Corrupted Row (Price = 'invalid_text')",
+                            action: "Row 3 me user ne Price column me text daal diya. decimal.TryParse fails.",
+                            file: "Controllers/ProductController.cs",
+                            codeFile: "ProductController.cs",
+                            lineBadge: "Line 313-324",
+                            codeSnippet: [
+                                `<span class="c-kw">if</span> (!<span class="c-kw">decimal</span>.<span class="c-fn">TryParse</span>(priceText, <span class="c-kw">out decimal</span> price) || price &lt; <span class="c-nm">0</span>)`,
+                                `{`,
+                                `    errorCount++;`,
+                                `    <span class="c-kw">continue</span>; <span class="c-cm">// SKIPS DB SAVE & MOVES TO NEXT ROW!</span>`,
+                                `}`
+                            ],
+                            activeLineIndex: 3,
+                            explain: "BRANCH TAKEN: Pura import crash nahi hota! Code errorCount++ karta hai aur continue statement se bad row ko skip karke agli row par chala jata hai!",
+                            vars: [
+                                { k: "priceText", v: "\"invalid_text\"" },
+                                { k: "errorCount", v: "1" },
+                                { k: "Action", v: "SKIPPED via continue" }
+                            ],
+                            debug: "Line 315 par breakpoint lagayein to catch errorCount++."
+                        },
+                        {
+                            tierId: "client2",
+                            tierBadge: "Error Summary",
+                            tierBadgeClass: "tb-client",
+                            title: "2. Controller Displays Warning Report",
+                            action: "Controller sets TempData['ErrorMessage'] reporting exactly how many rows failed.",
+                            file: "Views/Dashboard/Index.cshtml",
+                            codeFile: "ProductController.cs",
+                            lineBadge: "Line 354-358",
+                            codeSnippet: [
+                                `<span class="c-kw">if</span> (errorCount &gt; <span class="c-nm">0</span>) {`,
+                                `    TempData[<span class="c-st">"ErrorMessage"</span>] = $\<span class="c-st">"{errorCount} row(s) could not be imported. Please check Excel data."</span>;`,
+                                `}`
+                            ],
+                            activeLineIndex: 1,
+                            explain: "User ko accurate feedback milta hai ki valid rows save ho gayi aur 1 row reject ho gayi.",
+                            vars: [
+                                { k: "successCount", v: "3" },
+                                { k: "errorCount", v: "1" }
+                            ],
+                            debug: "Notice both success and error message banner in UI."
+                        }
+                    ]
+                }
+            },
+
+            // -------------------------------------------------------------
+            // SCENARIO 2: PRODUCT GRID & AJAX DELETE
+            // -------------------------------------------------------------
+            productGrid: {
+                title: "Product Grid Auto-Load & Dynamic AJAX Delete",
+                branches: [
+                    { id: "load", label: "Scenario A: Auto-Load Table on DOM Ready (/Product/GetProducts)" },
+                    { id: "deleteSuccess", label: "Scenario B: User Deletes Product (Confirmed + Valid Token)" },
+                    { id: "deleteCancel", label: "Scenario C: User Cancels Delete in Confirmation Box" }
+                ],
+                steps: {
+                    load: [
+                        {
+                            tierId: "client",
+                            tierBadge: "Client DOM Ready",
+                            tierBadgeClass: "tb-client",
+                            title: "1. $(document).ready() Triggers loadProducts()",
+                            action: "Views/Product/Index.cshtml loads. product.js executes loadProducts() without any button click.",
+                            file: "wwwroot/js/pages/product.js",
+                            codeFile: "product.js",
+                            lineBadge: "Line 1-10",
+                            codeSnippet: [
+                                `$(<span class="c-vr">document</span>).<span class="c-fn">ready</span>(<span class="c-kw">function</span> () {`,
+                                `    <span class="c-fn">loadProducts</span>(); <span class="c-cm">// AUTO-TRIGGER ON PAGE LOAD!</span>`,
+                                ``,
+                                `    <span class="c-kw">function</span> <span class="c-fn">loadProducts</span>() {`,
+                                `        $.<span class="c-fn">ajax</span>({`,
+                                `            url: <span class="c-st">"/Product/GetProducts"</span>,`,
+                                `            type: <span class="c-st">"GET"</span>,`,
+                                `            dataType: <span class="c-st">"json"</span>,`
+                            ],
+                            activeLineIndex: 5,
+                            explain: "Table load hone ke liye koi button nahi dabana padta. DOMContentLoaded event aate hi jQuery automatically AJAX GET bhejta hai.",
+                            vars: [{ k: "Trigger", v: "DOM Ready" }, { k: "URL", v: "\"/Product/GetProducts\"" }],
+                            debug: "product.js Line 8 par breakpoint lagayein."
+                        },
+                        {
+                            tierId: "ctrl",
+                            tierBadge: "Controller Layer",
+                            tierBadgeClass: "tb-ctrl",
+                            title: "2. ProductController.GetProducts() Maps DataTable to JSON",
+                            action: "Controller fetches DataTable from ProductBAL, loops through each DataRow, handles DBNull, and serializes into clean JSON.",
+                            file: "Controllers/ProductController.cs",
+                            codeFile: "ProductController.cs",
+                            lineBadge: "Line 37-80",
+                            codeSnippet: [
+                                `[<span class="c-fn">HttpGet</span>]`,
+                                `<span class="c-kw">public</span> IActionResult <span class="c-fn">GetProducts</span>() {`,
+                                `    DataTable dt = _productBAL.<span class="c-fn">GetAllProducts</span>();`,
+                                `    <span class="c-kw">var</span> products = <span class="c-kw">new</span> List&lt;<span class="c-kw">object</span>&gt;();`,
+                                `    <span class="c-kw">foreach</span> (DataRow row <span class="c-kw">in</span> dt.Rows) {`,
+                                `        products.<span class="c-fn">Add</span>(<span class="c-kw">new</span> { productId = Convert.<span class="c-fn">ToInt32</span>(row[<span class="c-st">"ProductId"</span>]), ... });`,
+                                `    }`,
+                                `    <span class="c-kw">return</span> <span class="c-fn">Json</span>(<span class="c-kw">new</span> { success = <span class="c-kw">true</span>, data = products });`,
+                                `}`
+                            ],
+                            activeLineIndex: 7,
+                            explain: "Ye line sabse important hai! 'data = products' yahi se nikalkar JavaScript ke response.data me jaata hai.",
+                            vars: [{ k: "dt.Rows.Count", v: "15" }, { k: "products.Count", v: "15" }],
+                            debug: "ProductController.cs Line 41 par breakpoint lagayein."
+                        },
+                        {
+                            tierId: "client2",
+                            tierBadge: "Kendo UI Grid",
+                            tierBadgeClass: "tb-js",
+                            title: "3. Kendo Grid Absorbs response.data & Injects DOM",
+                            action: "product.js destroys old grid, initializes $('#productGrid').kendoGrid({ dataSource: { data: response.data } }).",
+                            file: "wwwroot/js/pages/product.js",
+                            codeFile: "product.js",
+                            lineBadge: "Line 26-40",
+                            codeSnippet: [
+                                `$(<span class="c-st">"#productGrid"</span>).<span class="c-fn">kendoGrid</span>({`,
+                                `    dataSource: {`,
+                                `        data: response.data <span class="c-cm">// &lt;--- DATA BINDING HOOK!</span>`,
+                                `    },`,
+                                `    height: <span class="c-nm">500</span>,`,
+                                `    sortable: <span class="c-kw">true</span>,`,
+                                `    columns: [ { field: <span class="c-st">"productName"</span>, title: <span class="c-st">"Product Name"</span> } ]`,
+                                `});`
+                            ],
+                            activeLineIndex: 2,
+                            explain: "Kendo Grid engine DOM me dynamically &lt;table&gt;&lt;tr&gt;&lt;td&gt; generate karta hai. User screen par interactive table ready!",
+                            vars: [{ k: "response.data.length", v: "15 items" }, { k: "Grid ID", v: "\"#productGrid\"" }],
+                            debug: "product.js Line 28 par breakpoint lagayein."
+                        }
+                    ],
+                    deleteSuccess: [
+                        {
+                            tierId: "client",
+                            tierBadge: "Class Event Delegation",
+                            tierBadgeClass: "tb-js",
+                            title: "1. User Clicks '.deleteProduct' Button in Grid Row",
+                            action: "User clicks Delete on Row 2 (Laptop, id=5). $(document).on('click', '.deleteProduct') catches click.",
+                            file: "wwwroot/js/pages/product.js",
+                            codeFile: "product.js",
+                            lineBadge: "Line 169-185",
+                            codeSnippet: [
+                                `$(<span class="c-vr">document</span>).<span class="c-fn">on</span>(<span class="c-st">"click"</span>, <span class="c-st">".deleteProduct"</span>, <span class="c-kw">function</span> () {`,
+                                `    <span class="c-kw">var</span> id = $(<span class="c-kw">this</span>).<span class="c-fn">data</span>(<span class="c-st">"id"</span>); <span class="c-cm">// Reads data-id="5" (NOT element id!)</span>`,
+                                `    <span class="c-kw">if</span> (!<span class="c-fn">confirm</span>(<span class="c-st">"Are you sure you want to delete this product?"</span>)) <span class="c-kw">return</span>;`,
+                                `    <span class="c-kw">var</span> token = $(<span class="c-st">"input[name='__RequestVerificationToken']"</span>).<span class="c-fn">first</span>().<span class="c-fn">val</span>();`,
+                                `    $.<span class="c-fn">ajax</span>({ url: <span class="c-st">"/Product/Delete"</span>, type: <span class="c-st">"POST"</span>, data: { id: id, __RequestVerificationToken: token } });`
+                            ],
+                            activeLineIndex: 4,
+                            explain: "Button ID nahi hai! Class selector '.deleteProduct' se event catch hua, database ProductId '$(this).data(\"id\")' se nikala aur Anti-CSRF token attach kiya.",
+                            vars: [{ k: "id", v: "5" }, { k: "User Confirmed", v: "Yes (true)" }, { k: "Token", v: "Found" }],
+                            debug: "product.js Line 171 par breakpoint lagayein."
+                        },
+                        {
+                            tierId: "dal",
+                            tierBadge: "Database Soft Delete",
+                            tierBadgeClass: "tb-dal",
+                            title: "2. SP_Product_Delete Updates IsActive = 0",
+                            action: "ProductController.Delete(5) calls BAL -> DAL -> SP_Product_Delete. Record is NOT permanently deleted; soft delete is applied.",
+                            file: "ShopManagementDB / SP_Product_Delete",
+                            codeFile: "ProductDAL.cs",
+                            lineBadge: "Line 160-175",
+                            codeSnippet: [
+                                `<span class="c-cm">-- Stored Procedure: dbo.SP_Product_Delete</span>`,
+                                `<span class="c-kw">UPDATE</span> dbo.Products`,
+                                `<span class="c-kw">SET</span> IsActive = <span class="c-nm">0</span>, UpdatedDate = <span class="c-fn">GETDATE</span>()`,
+                                `<span class="c-kw">WHERE</span> ProductId = @ProductId;`
+                            ],
+                            activeLineIndex: 1,
+                            explain: "Soft delete integrity maintain karta hai taaki purane invoices corrupt na ho.",
+                            vars: [{ k: "@ProductId", v: "5" }, { k: "IsActive Updated to", v: "0" }],
+                            debug: "ProductController.cs Line 540 par breakpoint lagayein."
+                        },
+                        {
+                            tierId: "client2",
+                            tierBadge: "Silent Re-Fetch",
+                            tierBadgeClass: "tb-js",
+                            title: "3. AJAX Callback Calls loadProducts() to Refresh Grid",
+                            action: "AJAX success callback shows alert and re-executes loadProducts() without reloading the entire page!",
+                            file: "wwwroot/js/pages/product.js",
+                            codeFile: "product.js",
+                            lineBadge: "Line 200-209",
+                            codeSnippet: [
+                                `<span class="c-fn">success</span>: <span class="c-kw">function</span> (response) {`,
+                                `    <span class="c-kw">if</span> (response.success) {`,
+                                `        <span class="c-fn">alert</span>(<span class="c-st">"Product deleted successfully."</span>);`,
+                                `        <span class="c-fn">loadProducts</span>(); <span class="c-cm">// SILENTLY REFRESHES KENDO GRID!</span>`,
+                                `    }`,
+                                `}`
+                            ],
+                            activeLineIndex: 3,
+                            explain: "Deleted product table se gayab ho jata hai bina page reload kiye!",
+                            vars: [{ k: "Action", v: "Grid Re-Bound" }],
+                            debug: "Observe grid row count automatically decrements."
+                        }
+                    ]
+                }
+            },
+
+            // -------------------------------------------------------------
+            // SCENARIO 4: ADD PRODUCT & IMAGE UPLOAD
+            // -------------------------------------------------------------
+            productAdd: {
+                title: "Add Product Form & Image Upload Flow",
+                branches: [
+                    { id: "valid", label: "Scenario A: Valid Form + PNG Image (< 5MB)" },
+                    { id: "invalidFile", label: "Scenario B: Invalid File Format (.exe or .pdf) -> Client Rejection" }
+                ],
+                steps: {
+                    valid: [
+                        {
+                            tierId: "client",
+                            tierBadge: "Client Preview",
+                            tierBadgeClass: "tb-client",
+                            title: "1. File Selected & Instant FileReader Preview",
+                            action: "User selects 'headphones.png'. #imageFile change event triggers FileReader and shows instant preview.",
+                            file: "Views/Product/Add.cshtml",
+                            codeFile: "Add.cshtml",
+                            lineBadge: "Line 111-145",
+                            codeSnippet: [
+                                `$(<span class="c-st">"#imageFile"</span>).<span class="c-fn">on</span>(<span class="c-st">"change"</span>, <span class="c-kw">function</span> () {`,
+                                `    <span class="c-kw">const</span> file = <span class="c-kw">this</span>.files[<span class="c-nm">0</span>];`,
+                                `    <span class="c-kw">const</span> reader = <span class="c-kw">new</span> <span class="c-fn">FileReader</span>();`,
+                                `    reader.onload = <span class="c-kw">function</span> (e) {`,
+                                `        $(<span class="c-st">"#imagePreview"</span>).<span class="c-fn">attr</span>(<span class="c-st">"src"</span>, e.target.result).<span class="c-fn">show</span>();`,
+                                `    };`,
+                                `    reader.<span class="c-fn">readAsDataURL</span>(file);`,
+                                `});`
+                            ],
+                            activeLineIndex: 4,
+                            explain: "Client-side FileReader image ko Base64 me read karke screen par instant preview dikhata hai.",
+                            vars: [{ k: "File Name", v: "\"headphones.png\"" }, { k: "Size", v: "1.2 MB" }],
+                            debug: "Add.cshtml line 113 par breakpoint lagayein."
+                        },
+                        {
+                            tierId: "ctrl",
+                            tierBadge: "SaveImage & GUID",
+                            tierBadgeClass: "tb-ctrl",
+                            title: "2. Controller Generates GUID Filename & Saves to Disk",
+                            action: "SaveImage() generates unique 32-char hex string (Guid.NewGuid) and writes to wwwroot/Uploads/Products/.",
+                            file: "Controllers/ProductController.cs",
+                            codeFile: "ProductController.cs",
+                            lineBadge: "Line 565-630",
+                            codeSnippet: [
+                                `<span class="c-kw">string</span> fileName = Guid.<span class="c-fn">NewGuid</span>().<span class="c-fn">ToString</span>(<span class="c-st">"N"</span>) + extension;`,
+                                `<span class="c-kw">string</span> filePath = Path.<span class="c-fn">Combine</span>(uploadFolder, fileName);`,
+                                `<span class="c-kw">using var</span> stream = <span class="c-kw">new</span> <span class="c-fn">FileStream</span>(filePath, FileMode.Create);`,
+                                `<span class="c-kw">await</span> imageFile.<span class="c-fn">CopyToAsync</span>(stream);`,
+                                `<span class="c-kw">return</span> <span class="c-st">"/Uploads/Products/"</span> + fileName;`
+                            ],
+                            activeLineIndex: 4,
+                            explain: "GUID ensures two files named 'photo.png' will never overwrite each other. File is written to disk, relative path returned.",
+                            vars: [{ k: "Generated Path", v: "\"/Uploads/Products/a89f3b...png\"" }],
+                            debug: "ProductController.cs Line 614 par breakpoint lagayein."
+                        },
+                        {
+                            tierId: "dal",
+                            tierBadge: "Database Insert",
+                            tierBadgeClass: "tb-dal",
+                            title: "3. SP_Product_Save Inserts Product Record",
+                            action: "ProductDAL executes SP_Product_Save with ProductCode, ProductName, Quantity, Price, and ImagePath.",
+                            file: "ShopManagement.DataAccess/ProductDAL.cs",
+                            codeFile: "ProductDAL.cs",
+                            lineBadge: "Line 90-97",
+                            codeSnippet: [
+                                `_dbHelper.<span class="c-fn">ExecuteStoredProcedureDataTable</span>(`,
+                                `    <span class="c-st">"SP_Product_Save"</span>,`,
+                                `    parameters`,
+                                `);`
+                            ],
+                            activeLineIndex: 1,
+                            explain: "Record saved! Controller redirects user to Dashboard with success toast notification.",
+                            vars: [{ k: "DB Status", v: "Inserted" }, { k: "Redirect", v: "\"/Dashboard/Index\"" }],
+                            debug: "Check dbo.Products table in SSMS."
+                        }
+                    ]
+                }
+            },
+
+            // -------------------------------------------------------------
+            // SCENARIO 5: BILLING & TVP INVOICE GENERATION
+            // -------------------------------------------------------------
+            billing: {
+                title: "Complete Billing & Table-Valued Parameter (TVP) Invoice Generation",
+                branches: [
+                    { id: "tvpSuccess", label: "Scenario A: Sufficient Stock -> Atomic Transaction Succeeds" },
+                    { id: "stockShortage", label: "Scenario B: Stock Insufficient -> SP Error 50004 & Rollback" }
+                ],
+                steps: {
+                    tvpSuccess: [
+                        {
+                            tierId: "client",
+                            tierBadge: "Client Submission",
+                            tierBadgeClass: "tb-client",
+                            title: "1. User Submits #invoiceForm with Selected Products",
+                            action: "Invoice/Create.cshtml submit event validates fields, prevents double submission, and sends POST /Invoice/Generate.",
+                            file: "Views/Invoice/Create.cshtml",
+                            codeFile: "Create.cshtml",
+                            lineBadge: "Line 372-475",
+                            codeSnippet: [
+                                `$(<span class="c-st">"#invoiceForm"</span>).<span class="c-fn">on</span>(<span class="c-st">"submit"</span>, <span class="c-kw">function</span> (event) {`,
+                                `    <span class="c-kw">var</span> button = $(<span class="c-st">"#generateInvoiceButton"</span>);`,
+                                `    button.<span class="c-fn">prop</span>(<span class="c-st">"disabled"</span>, <span class="c-kw">true</span>).<span class="c-fn">text</span>(<span class="c-st">"Generating Invoice..."</span>);`,
+                                `    <span class="c-kw">return true</span>;`,
+                                `});`
+                            ],
+                            activeLineIndex: 2,
+                            explain: "Prevents double-click! Submits customerName, customerPhone, productIds='1,3', quantities='2,1'.",
+                            vars: [{ k: "customerName", v: "\"Rahul Sharma\"" }, { k: "productIds", v: "\"1,3\"" }, { k: "quantities", v: "\"2,1\"" }],
+                            debug: "Create.cshtml Line 374 par breakpoint lagayein."
+                        },
+                        {
+                            tierId: "ctrl",
+                            tierBadge: "TVP Construction",
+                            tierBadgeClass: "tb-ctrl",
+                            title: "2. Controller Builds In-Memory TVP DataTable",
+                            action: "InvoiceController creates a DataTable with columns ProductId, Quantity, UnitPrice, TotalPrice to pass as TVP.",
+                            file: "Controllers/InvoiceController.cs",
+                            codeFile: "InvoiceController.cs",
+                            lineBadge: "Line 146-170",
+                            codeSnippet: [
+                                `DataTable invoiceItems = <span class="c-kw">new</span> <span class="c-fn">DataTable</span>();`,
+                                `invoiceItems.Columns.<span class="c-fn">Add</span>(<span class="c-st">"ProductId"</span>, <span class="c-kw">typeof</span>(<span class="c-kw">int</span>));`,
+                                `invoiceItems.Columns.<span class="c-fn">Add</span>(<span class="c-st">"Quantity"</span>, <span class="c-kw">typeof</span>(<span class="c-kw">int</span>));`,
+                                `invoiceItems.Columns.<span class="c-fn">Add</span>(<span class="c-st">"UnitPrice"</span>, <span class="c-kw">typeof</span>(<span class="c-kw">decimal</span>));`,
+                                `invoiceItems.Columns.<span class="c-fn">Add</span>(<span class="c-st">"TotalPrice"</span>, <span class="c-kw">typeof</span>(<span class="c-kw">decimal</span>));`
+                            ],
+                            activeLineIndex: 0,
+                            explain: "Table-Valued Parameter (TVP): Ek single network trip me pura multi-item order SQL Server ko bhejne ka fastest tareeqa!",
+                            vars: [{ k: "TVP Table Name", v: "\"InvoiceItemType\"" }, { k: "Items Count", v: "2 rows" }],
+                            debug: "InvoiceController.cs Line 146 par breakpoint lagayein."
+                        },
+                        {
+                            tierId: "dal",
+                            tierBadge: "Atomic Transaction",
+                            tierBadgeClass: "tb-dal",
+                            title: "3. SP_Invoice_CreateComplete Executes Under ACID Transaction",
+                            action: "SQL Stored Procedure inserts into Invoices, inserts 2 rows into InvoiceDetails, and deducts Quantity from dbo.Products.",
+                            file: "SQL Server / SP_Invoice_CreateComplete",
+                            codeFile: "InvoiceDAL.cs",
+                            lineBadge: "Line 60-95",
+                            codeSnippet: [
+                                `<span class="c-cm">-- SQL Server Transaction:</span>`,
+                                `<span class="c-kw">BEGIN TRANSACTION</span>;`,
+                                `<span class="c-kw">INSERT INTO</span> dbo.Invoices (InvoiceNo, CustomerName, TotalAmount, StoreId) ...`,
+                                `<span class="c-kw">INSERT INTO</span> dbo.InvoiceDetails SELECT ... FROM @InvoiceItems;`,
+                                `<span class="c-kw">UPDATE</span> p <span class="c-kw">SET</span> p.Quantity = p.Quantity - item.Quantity FROM dbo.Products p ...`,
+                                `<span class="c-kw">COMMIT TRANSACTION</span>;`
+                            ],
+                            activeLineIndex: 4,
+                            explain: "All or Nothing: Stock update aur bill creation ek saath commit hote hain. Agar stock kam pad jaye toh turant ROLLBACK!",
+                            vars: [{ k: "Generated Invoice No", v: "\"INV-20261006-0001\"" }, { k: "Stock Deducted", v: "True" }],
+                            debug: "SP_Invoice_CreateComplete step-by-step trace."
+                        },
+                        {
+                            tierId: "client2",
+                            tierBadge: "Printable Bill View",
+                            tierBadgeClass: "tb-client",
+                            title: "4. Redirects to /Invoice/Bill?id=... (Print View)",
+                            action: "Controller redirects to Bill action which renders receipt with store details, items list, and Print button.",
+                            file: "Views/Invoice/Bill.cshtml",
+                            codeFile: "InvoiceController.cs",
+                            lineBadge: "Line 497-520",
+                            codeSnippet: [
+                                `<span class="c-kw">return</span> <span class="c-fn">RedirectToAction</span>(<span class="c-st">"Bill"</span>, <span class="c-kw">new</span> { id = invoiceId });`
+                            ],
+                            activeLineIndex: 0,
+                            explain: "Customer receipt ready on screen for printing!",
+                            vars: [{ k: "invoiceId", v: "101" }, { k: "Action", v: "Bill Printable View" }],
+                            debug: "Views/Invoice/Bill.cshtml rendered."
+                        }
+                    ]
+                }
+            },
+
+            // -------------------------------------------------------------
+            // SCENARIO 6: MULTI-STORE & EMPLOYEE STATUS TOGGLE
+            // -------------------------------------------------------------
+            storeEmployee: {
+                title: "Store Management & Employee Status Toggle",
+                branches: [
+                    { id: "toggle", label: "Scenario A: Admin Toggles Employee Status (Active <-> Inactive)" }
+                ],
+                steps: {
+                    toggle: [
+                        {
+                            tierId: "client",
+                            tierBadge: "Client Inline Form",
+                            tierBadgeClass: "tb-client",
+                            title: "1. Admin Clicks 'Deactivate' Button on Store Details",
+                            action: "Views/Store/Details.cshtml inline form posts userId=3, storeId=1, isActive=false to /Store/UpdateEmployeeStatus.",
+                            file: "Views/Store/Details.cshtml",
+                            codeFile: "Details.cshtml",
+                            lineBadge: "Line 240-275",
+                            codeSnippet: [
+                                `&lt;<span class="c-kw">form</span> <span class="c-vr">asp-controller</span>=<span class="c-st">"Store"</span> <span class="c-vr">asp-action</span>=<span class="c-st">"UpdateEmployeeStatus"</span> <span class="c-vr">method</span>=<span class="c-st">"post"</span>&gt;`,
+                                `    &lt;<span class="c-kw">input</span> <span class="c-vr">type</span>=<span class="c-st">"hidden"</span> <span class="c-vr">name</span>=<span class="c-st">"userId"</span> <span class="c-vr">value</span>=<span class="c-st">"3"</span> /&gt;`,
+                                `    &lt;<span class="c-kw">input</span> <span class="c-vr">type</span>=<span class="c-st">"hidden"</span> <span class="c-vr">name</span>=<span class="c-st">"storeId"</span> <span class="c-vr">value</span>=<span class="c-st">"1"</span> /&gt;`,
+                                `    &lt;<span class="c-kw">input</span> <span class="c-vr">type</span>=<span class="c-st">"hidden"</span> <span class="c-vr">name</span>=<span class="c-st">"isActive"</span> <span class="c-vr">value</span>=<span class="c-st">"false"</span> /&gt;`,
+                                `    &lt;<span class="c-kw">button</span> <span class="c-vr">type</span>=<span class="c-st">"submit"</span>&gt;Deactivate&lt;/<span class="c-kw">button</span>&gt;`,
+                                `&lt;/<span class="c-kw">form</span>&gt;`
+                            ],
+                            activeLineIndex: 4,
+                            explain: "Standard MVC Form POST pattern with hidden parameters.",
+                            vars: [{ k: "userId", v: "3" }, { k: "target isActive", v: "false" }],
+                            debug: "Details.cshtml line 241 par check karein."
+                        },
+                        {
+                            tierId: "ctrl",
+                            tierBadge: "Controller Execution",
+                            tierBadgeClass: "tb-ctrl",
+                            title: "2. StoreController Updates Status & Redirects",
+                            action: "StoreController calls StoreBAL.UpdateEmployeeStatus -> StoreDAL -> SP_User_UpdateStatus. Redirects back to Store Details.",
+                            file: "Controllers/StoreController.cs",
+                            codeFile: "StoreController.cs",
+                            lineBadge: "Line 387-430",
+                            codeSnippet: [
+                                `[<span class="c-fn">HttpPost</span>]`,
+                                `<span class="c-kw">public</span> IActionResult <span class="c-fn">UpdateEmployeeStatus</span>(<span class="c-kw">int</span> userId, <span class="c-kw">int</span> storeId, <span class="c-kw">bool</span> isActive) {`,
+                                `    _storeBAL.<span class="c-fn">UpdateEmployeeStatus</span>(userId, storeId, isActive);`,
+                                `    <span class="c-kw">return</span> <span class="c-fn">RedirectToAction</span>(<span class="c-st">"Details"</span>, <span class="c-kw">new</span> { id = storeId });`,
+                                `}`
+                            ],
+                            activeLineIndex: 2,
+                            explain: "Employee can no longer log in. Admin sees status updated to 'Inactive' on screen.",
+                            vars: [{ k: "Employee State", v: "Inactive (Blocked)" }],
+                            debug: "StoreController.cs Line 390 par breakpoint lagayein."
+                        }
+                    ]
+                }
+            }
+        };
+
+        // ==========================================================================
+        // STATE ENGINE
+        // ==========================================================================
+        let currentScenarioKey = 'login';
+        let currentBranchId = 'admin';
+        let currentStepIndex = 0;
+        let playInterval = null;
+
+        function loadScenario(scenarioKey) {
+            currentScenarioKey = scenarioKey;
+            const scenario = SCENARIOS[scenarioKey];
+
+            // Update Tab UI
+            document.querySelectorAll('.scenario-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Populate Branches dropdown
+            const branchSel = document.getElementById('branchSelector');
+            branchSel.innerHTML = '';
+            scenario.branches.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b.id;
+                opt.textContent = b.label;
+                branchSel.appendChild(opt);
+            });
+
+            currentBranchId = scenario.branches[0].id;
+            currentStepIndex = 0;
+            renderCurrentStep();
+        }
+
+        function changeBranch(branchId) {
+            currentBranchId = branchId;
+            currentStepIndex = 0;
+            renderCurrentStep();
+        }
+
+        function renderCurrentStep() {
+            const scenario = SCENARIOS[currentScenarioKey];
+            const steps = scenario.steps[currentBranchId] || scenario.steps[scenario.branches[0].id];
+            const step = steps[currentStepIndex];
+
+            // Update Step Counter
+            document.getElementById('stepCounter').textContent = `Step ${currentStepIndex + 1} of ${steps.length}`;
+
+            // Render Tiers
+            const tiersContainer = document.getElementById('tiersContainer');
+            tiersContainer.innerHTML = '';
+
+            steps.forEach((s, idx) => {
+                const isActive = idx === currentStepIndex;
+                const isPassed = idx < currentStepIndex;
+
+                const card = document.createElement('div');
+                card.className = `tier-card ${isActive ? 'tier-active' : ''}`;
+                card.onclick = () => { currentStepIndex = idx; renderCurrentStep(); };
+                card.style.cursor = 'pointer';
+
+                card.innerHTML = `
+                    <div class="tier-card-header">
+                        <span class="tier-badge ${s.tierBadgeClass}">
+                            ${isActive ? '⚡ ACTIVE: ' : (isPassed ? '✓ ' : '')}${s.tierBadge}
+                        </span>
+                        <span style="font-size:0.75rem; color:${isActive ? 'var(--accent-cyan)' : 'var(--text-muted)'}; font-weight:700;">
+                            Stage ${idx + 1}
+                        </span>
+                    </div>
+                    <div class="tier-title">${s.title}</div>
+                    <div class="tier-action-text">${s.action}</div>
+                    <div class="tier-file-pill">${s.file}</div>
+                `;
+
+                tiersContainer.appendChild(card);
+
+                // Add connector line if not last
+                if (idx < steps.length - 1) {
+                    const conn = document.createElement('div');
+                    conn.className = `tier-connector ${idx < currentStepIndex ? 'conn-active' : ''}`;
+                    conn.innerHTML = `
+                        <div class="line"></div>
+                        <span>${idx < currentStepIndex ? '▼ Completed' : '▼ Next'}</span>
+                        <div class="line"></div>
+                    `;
+                    tiersContainer.appendChild(conn);
+                }
+            });
+
+            // Auto-scroll tier into view
+            const activeCard = document.querySelector('.tier-card.tier-active');
+            if (activeCard) {
+                activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            // Render Code Panel
+            document.getElementById('codeFileName').textContent = step.codeFile;
+            document.getElementById('codeLineBadge').textContent = step.lineBadge;
+
+            const codeScrollBox = document.getElementById('codeScrollBox');
+            codeScrollBox.innerHTML = '';
+
+            step.codeSnippet.forEach((lineText, lIdx) => {
+                const lineDiv = document.createElement('div');
+                lineDiv.className = `code-line ${lIdx === step.activeLineIndex ? 'active-line' : ''}`;
+                lineDiv.innerHTML = `
+                    <span class="line-num">${lIdx + 1}</span>
+                    <span class="line-content">${lineText}</span>
+                `;
+                codeScrollBox.appendChild(lineDiv);
+            });
+
+            // Auto-scroll active code line into view
+            const activeLineEl = document.querySelector('.code-line.active-line');
+            if (activeLineEl) {
+                activeLineEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            // Render Inspector Tray
+            document.getElementById('stepExplanation').textContent = step.explain;
+            document.getElementById('debugTipText').textContent = step.debug;
+
+            const varsList = document.getElementById('varsList');
+            varsList.innerHTML = '';
+            step.vars.forEach(v => {
+                const vRow = document.createElement('div');
+                vRow.className = 'var-row';
+                vRow.innerHTML = `<span class="var-k">${v.k}</span><span class="var-v">${v.v}</span>`;
+                varsList.appendChild(vRow);
+            });
+        }
+
+        function nextStep() {
+            const scenario = SCENARIOS[currentScenarioKey];
+            const steps = scenario.steps[currentBranchId] || scenario.steps[scenario.branches[0].id];
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex++;
+                renderCurrentStep();
+            } else {
+                stopPlay();
+            }
+        }
+
+        function prevStep() {
+            if (currentStepIndex > 0) {
+                currentStepIndex--;
+                renderCurrentStep();
+            }
+        }
+
+        function resetFlow() {
+            stopPlay();
+            currentStepIndex = 0;
+            renderCurrentStep();
+        }
+
+        function togglePlay() {
+            if (playInterval) {
+                stopPlay();
+            } else {
+                document.getElementById('playBtn').innerHTML = '⏸️ Pause';
+                document.getElementById('playBtn').style.background = '#dc2626';
+                playInterval = setInterval(() => {
+                    const scenario = SCENARIOS[currentScenarioKey];
+                    const steps = scenario.steps[currentBranchId] || scenario.steps[scenario.branches[0].id];
+                    if (currentStepIndex < steps.length - 1) {
+                        currentStepIndex++;
+                        renderCurrentStep();
+                    } else {
+                        stopPlay();
+                    }
+                }, 2200);
+            }
+        }
+
+        function stopPlay() {
+            if (playInterval) {
+                clearInterval(playInterval);
+                playInterval = null;
+            }
+            document.getElementById('playBtn').innerHTML = '▶️ Auto Play';
+            document.getElementById('playBtn').style.background = 'linear-gradient(135deg, #0284c7, #0369a1)';
+        }
+
+        // Initialize on page load
+        window.onload = () => {
+            loadScenario('login');
+        };
+    </script>
+</body>
+</html>

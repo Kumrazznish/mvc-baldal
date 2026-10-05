@@ -1,0 +1,811 @@
+
+===========================================================================
+     ShopManagementDB — COMPLETE DATABASE REFERENCE
+     Tables + Stored Procedures with Full Explanation
+===========================================================================
+
+Yeh file mein poora database ka code hai with explanation.
+Koi bhi SP ya Table samajhna ho toh yahan se dekho.
+
+===========================================================================
+                         PART 1 : TABLES
+===========================================================================
+
+---------------------------------------------------------------------------
+TABLE 1 : Stores
+---------------------------------------------------------------------------
+Purpose : Shop/branch ki basic information store karta hai.
+          Ek store create hota hai — Admin usi ke under kaam karta hai.
+
+CREATE TABLE dbo.Stores
+(
+    StoreId     INT           IDENTITY(1,1) NOT NULL,   -- Auto increment PK
+    StoreName   NVARCHAR(150) NOT NULL,                 -- Store ka naam (e.g. "Main Branch")
+    StoreCode   NVARCHAR(50)  NOT NULL,                 -- Unique short code (e.g. "ST001")
+    Address     NVARCHAR(500) NULL,                     -- Pata (optional)
+    Phone       NVARCHAR(20)  NULL,                     -- Phone number (optional)
+    Email       NVARCHAR(150) NULL,                     -- Store ka email (optional)
+    IsActive    BIT           NOT NULL DEFAULT (1),     -- 1=Active, 0=Inactive
+    CreatedDate DATETIME      NOT NULL DEFAULT (GETDATE()), -- Kab create hua
+    UpdatedDate DATETIME      NULL,                     -- Last update kab hua
+
+    CONSTRAINT PK_Stores          PRIMARY KEY (StoreId),
+    CONSTRAINT UQ_Stores_StoreCode UNIQUE (StoreCode)  -- StoreCode duplicate nahi ho sakta
+);
+
+Column Explanation:
+    StoreId    : Database khud auto number generate karta hai (1, 2, 3...)
+    StoreCode  : Unique hai — same code 2 stores mein nahi ho sakta
+    IsActive   : Default 1 (active). Deactivate karo toh 0
+    UpdatedDate: NULL start mein, edit karne par GETDATE() set hota hai
+
+---------------------------------------------------------------------------
+TABLE 2 : Users
+---------------------------------------------------------------------------
+Purpose : Sab login users yahan stored hain — Admin aur Employee dono.
+          Email se login hota hai (pehle Username tha, ab Email hai).
+
+CREATE TABLE dbo.Users
+(
+    UserId       INT           IDENTITY(1,1) NOT NULL,  -- Auto increment PK
+    Name         NVARCHAR(100) NOT NULL,                -- Full naam (e.g. "Rahul Sharma")
+    Email        NVARCHAR(150) NOT NULL,                -- Login ke liye email (UNIQUE)
+    PasswordHash NVARCHAR(500) NOT NULL,                -- Password
+    Role         NVARCHAR(20)  NOT NULL,                -- "Admin" ya "Employee"
+    StoreId      INT           NULL,                    -- Employee kis store mein hai (Admin = NULL)
+    IsActive     BIT           NOT NULL DEFAULT (1),    -- 1=Active, 0=Blocked
+    CreatedDate  DATETIME      NOT NULL DEFAULT (GETDATE()),
+    UpdatedDate  DATETIME      NULL,
+
+    CONSTRAINT PK_Users         PRIMARY KEY (UserId),
+    CONSTRAINT UQ_Users_Email   UNIQUE (Email),
+    CONSTRAINT CK_Users_Role    CHECK (Role IN ('Admin', 'Employee')),
+    CONSTRAINT FK_Users_Stores  FOREIGN KEY (StoreId) REFERENCES dbo.Stores(StoreId)
+);
+
+Column Explanation:
+    Email   : Login field. Har user ka alag email hona chahiye.
+    Role    : "Admin" = Full access. "Employee" = Invoice banana only.
+    StoreId : Admin ke liye NULL. Employee ke liye mandatory.
+    IsActive: 0 karo toh employee login nahi kar sakta.
+
+Constraints:
+    UQ_Users_Email  : Same email 2 baar insert nahi ho sakta — error aayega
+    CK_Users_Role   : Sirf "Admin" ya "Employee" allowed — kuch aur dalo toh error
+    FK_Users_Stores : StoreId woh StoreId hona chahiye jo Stores table mein exist kare
+
+---------------------------------------------------------------------------
+TABLE 3 : Products
+---------------------------------------------------------------------------
+Purpose : Shop ke sab products. Quantity real-time update hoti hai invoice par.
+
+CREATE TABLE dbo.Products
+(
+    ProductId   INT            IDENTITY(1,1) NOT NULL,
+    ProductCode NVARCHAR(50)   NOT NULL,                -- Unique code (e.g. "P001")
+    ProductName NVARCHAR(200)  NOT NULL,                -- Product naam
+    Quantity    INT            NOT NULL,                -- Current stock
+    Price       DECIMAL(18,2)  NOT NULL,                -- Price (e.g. 10.00)
+    ImagePath   NVARCHAR(500)  NULL,                    -- /Uploads/Products/guid.jpg
+    IsActive    BIT            NOT NULL DEFAULT (1),    -- Soft delete flag
+    CreatedDate DATETIME       NOT NULL DEFAULT (GETDATE()),
+    UpdatedDate DATETIME       NULL,
+
+    CONSTRAINT PK_Products             PRIMARY KEY (ProductId),
+    CONSTRAINT UQ_Products_ProductCode UNIQUE (ProductCode),
+    CONSTRAINT CK_Products_Quantity    CHECK (Quantity >= 0),
+    CONSTRAINT CK_Products_Price       CHECK (Price    >= 0)
+);
+
+Column Explanation:
+    ProductCode: "P001", "P002" etc. Import mein agar exist karta hai toh update hoga
+    Quantity   : Invoice create hone par SP automatically ghatata hai
+    Price      : Browser se price trust nahi hota — SP DB se read karta hai
+    IsActive   : Delete par 0 hota hai (soft delete). Data physically nahi hata.
+
+Indexes:
+    IX_Products_ProductName  -- Search fast
+    IX_Products_IsActive     -- Filter fast
+
+---------------------------------------------------------------------------
+TABLE 4 : Invoices
+---------------------------------------------------------------------------
+Purpose : Har invoice ka header. Customer info, total amount, kaun ne banaya.
+
+CREATE TABLE dbo.Invoices
+(
+    InvoiceId     INT           IDENTITY(1,1) NOT NULL,
+    InvoiceNo     NVARCHAR(30)  NOT NULL,                -- "INV-20261005-000001"
+    CustomerName  NVARCHAR(150) NOT NULL,
+    CustomerPhone NVARCHAR(20)  NULL,
+    CreatedBy     INT           NOT NULL,                -- Employee UserId (FK)
+    InvoiceDate   DATETIME      NOT NULL DEFAULT (GETDATE()),
+    TotalAmount   DECIMAL(18,2) NOT NULL,
+
+    CONSTRAINT PK_Invoices             PRIMARY KEY (InvoiceId),
+    CONSTRAINT UQ_Invoices_InvoiceNo   UNIQUE (InvoiceNo),
+    CONSTRAINT FK_Invoices_Users       FOREIGN KEY (CreatedBy) REFERENCES dbo.Users(UserId),
+    CONSTRAINT CK_Invoices_TotalAmount CHECK (TotalAmount >= 0)
+);
+
+Column Explanation:
+    InvoiceNo  : SP generate karta hai — "INV-" + YYYYMMDD + "-" + 000001
+    CreatedBy  : Employee ka UserId. Users table se FK.
+    TotalAmount: SP DB price se calculate karta hai, browser se nahi.
+
+Indexes:
+    IX_Invoices_CreatedBy    -- Employee ke sab invoices fast
+    IX_Invoices_InvoiceDate  -- Date filter fast
+    IX_Invoices_CustomerPhone-- Phone search fast
+
+---------------------------------------------------------------------------
+TABLE 5 : InvoiceDetails
+---------------------------------------------------------------------------
+Purpose : Ek invoice ke andar kaun kaun se products — line items.
+          Price snapshot rahta hai (historical record).
+
+CREATE TABLE dbo.InvoiceDetails
+(
+    InvoiceDetailId INT           IDENTITY(1,1) NOT NULL,
+    InvoiceId       INT           NOT NULL,
+    ProductId       INT           NOT NULL,
+    ProductName     NVARCHAR(200) NOT NULL,   -- Snapshot at time of sale
+    Quantity        INT           NOT NULL,
+    UnitPrice       DECIMAL(18,2) NOT NULL,   -- Snapshot at time of sale
+    TotalAmount     DECIMAL(18,2) NOT NULL,   -- UnitPrice * Quantity
+
+    CONSTRAINT PK_InvoiceDetails             PRIMARY KEY (InvoiceDetailId),
+    CONSTRAINT FK_InvoiceDetails_Invoices    FOREIGN KEY (InvoiceId)  REFERENCES dbo.Invoices(InvoiceId),
+    CONSTRAINT FK_InvoiceDetails_Products    FOREIGN KEY (ProductId)  REFERENCES dbo.Products(ProductId),
+    CONSTRAINT CK_InvoiceDetails_Quantity    CHECK (Quantity    >  0),
+    CONSTRAINT CK_InvoiceDetails_UnitPrice   CHECK (UnitPrice   >= 0),
+    CONSTRAINT CK_InvoiceDetails_TotalAmount CHECK (TotalAmount >= 0)
+);
+
+Column Explanation:
+    ProductName: Snapshot — agar baad mein product rename ho toh purana naam safe
+    UnitPrice  : Snapshot — price change hone par purane invoice pe effect nahi
+    TotalAmount: = UnitPrice * Quantity (SP calculate karta hai)
+
+Indexes:
+    IX_InvoiceDetails_InvoiceId -- Invoice ke sab items fast
+    IX_InvoiceDetails_ProductId -- Product ke sab entries fast
+
+---------------------------------------------------------------------------
+USER-DEFINED TABLE TYPE : dbo.InvoiceItemType
+---------------------------------------------------------------------------
+Purpose : SP_Invoice_CreateComplete ko ek saath multiple products pass karna.
+
+CREATE TYPE dbo.InvoiceItemType AS TABLE
+(
+    ProductId INT NOT NULL,
+    Quantity  INT NOT NULL
+);
+
+C# mein kaise use hota hai:
+    DataTable dt = new DataTable();
+    dt.Columns.Add("ProductId", typeof(int));
+    dt.Columns.Add("Quantity",  typeof(int));
+    dt.Rows.Add(1, 2);   -- Product 1 ka Qty 2
+    dt.Rows.Add(2, 3);   -- Product 2 ka Qty 3
+
+    // SqlParameter mein:
+    new SqlParameter("@InvoiceItems", SqlDbType.Structured) {
+        TypeName = "dbo.InvoiceItemType",
+        Value    = dt
+    }
+
+
+===========================================================================
+                   PART 2 : STORED PROCEDURES (18 Total)
+===========================================================================
+
+===========================================================================
+SP 1 : SP_Account_Login
+Purpose : Email + Password se login validate karna
+Called by: AccountDAL.GetUserByEmail()
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Account_Login
+    @Email    NVARCHAR(150),
+    @Password NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        UserId,       -- Session mein store hoga
+        Name,         -- Header mein dikhayi dega
+        Email,        -- Session mein store hoga
+        Role,         -- "Admin" ya "Employee" — redirect decide karta hai
+        StoreId,      -- Employee ka store (Admin ke liye NULL)
+        IsActive
+    FROM dbo.Users
+    WHERE Email        = @Email
+      AND PasswordHash = @Password
+      AND IsActive     = 1;  -- Sirf active users login kar sakte hain
+END;
+
+Flow:
+    1. User form mein email + password dalta hai
+    2. AccountController → AccountBAL.ValidateLogin()
+    3. AccountDAL.GetUserByEmail() → SP call
+    4. Agar row aaya → Session set karo (UserId, Name, Email, Role, StoreId)
+    5. Role="Admin" → Dashboard/Index
+       Role="Employee" → Employee/Index
+    6. Koi row nahi → "Invalid email or password"
+
+===========================================================================
+SP 2 : SP_Product_GetAll
+Purpose : Sab active products list karna
+Called by: ProductDAL.GetAllProducts()
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Product_GetAll
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        ProductId, ProductCode, ProductName,
+        Quantity, Price, ImagePath,
+        IsActive, CreatedDate, UpdatedDate
+    FROM dbo.Products
+    WHERE IsActive = 1           -- Deleted products nahi dikhenge
+    ORDER BY ProductId DESC;     -- Naye pehle
+END;
+
+===========================================================================
+SP 3 : SP_Product_GetById
+Purpose : Ek specific product ki details lena (Edit ke liye)
+Called by: ProductDAL.GetProductById()
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Product_GetById
+    @ProductId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        ProductId, ProductCode, ProductName,
+        Quantity, Price, ImagePath,
+        IsActive, CreatedDate, UpdatedDate
+    FROM dbo.Products
+    WHERE ProductId = @ProductId;  -- IsActive filter nahi — deleted bhi edit ho sake
+END;
+
+===========================================================================
+SP 4 : SP_Product_Save
+Purpose : Product add/restock. Exist kare toh UPDATE, warna INSERT (UPSERT logic)
+Called by: ProductDAL.SaveProduct() — Add Product form + Excel Import
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Product_Save
+    @ProductCode NVARCHAR(50),
+    @ProductName NVARCHAR(200),
+    @Quantity    INT,
+    @Price       DECIMAL(18,2),
+    @ImagePath   NVARCHAR(500) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (
+        SELECT 1 FROM dbo.Products WHERE ProductCode = @ProductCode
+    )
+    BEGIN
+        -- ProductCode exist karta hai = UPDATE
+        UPDATE dbo.Products
+        SET
+            ProductName = @ProductName,
+            Quantity    = Quantity + @Quantity,   -- ADD karo (replace nahi)
+            Price       = @Price,
+            ImagePath   = CASE
+                              WHEN @ImagePath IS NULL OR @ImagePath = ''
+                              THEN ImagePath      -- Purana image rakho
+                              ELSE @ImagePath     -- Naya image set karo
+                          END,
+            IsActive    = 1,                      -- Agar delete tha toh reactivate
+            UpdatedDate = GETDATE()
+        WHERE ProductCode = @ProductCode;
+    END
+    ELSE
+    BEGIN
+        -- Naya product = INSERT
+        INSERT INTO dbo.Products
+        (ProductCode, ProductName, Quantity, Price, ImagePath, IsActive, CreatedDate)
+        VALUES
+        (@ProductCode, @ProductName, @Quantity, @Price, @ImagePath, 1, GETDATE());
+    END
+END;
+
+Important:
+    - Quantity ADD hoti hai REPLACE nahi (stock management ke liye)
+    - Image NULL = purana image safe rahega
+    - Deleted product same code se add karo = reactivate hoga
+
+===========================================================================
+SP 5 : SP_Product_Update
+Purpose : Edit Product form se product update karna
+Called by: ProductDAL.UpdateProduct()
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Product_Update
+    @ProductId   INT,
+    @ProductCode NVARCHAR(50),
+    @ProductName NVARCHAR(200),
+    @Quantity    INT,
+    @Price       DECIMAL(18,2),
+    @ImagePath   NVARCHAR(500) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE dbo.Products
+    SET
+        ProductCode = @ProductCode,
+        ProductName = @ProductName,
+        Quantity    = @Quantity,     -- Direct SET (Save SP se alag tha)
+        Price       = @Price,
+        ImagePath   = @ImagePath,
+        UpdatedDate = GETDATE()
+    WHERE ProductId = @ProductId;
+END;
+
+SP_Product_Save vs SP_Product_Update:
+    Save   = Stock ADD hoti hai  (restock)
+    Update = Stock SET hoti hai  (manual correction)
+
+===========================================================================
+SP 6 : SP_Product_Delete
+Purpose : Product ko soft delete karna (physically nahi)
+Called by: ProductDAL.DeleteProduct()
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Product_Delete
+    @ProductId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE dbo.Products
+    SET
+        IsActive    = 0,        -- Sirf flag off karo
+        UpdatedDate = GETDATE()
+    WHERE ProductId = @ProductId;
+END;
+
+Soft Delete kyun?
+    Invoice history protect hoti hai.
+    Hard delete karte toh FK_InvoiceDetails_Products error aata.
+
+===========================================================================
+SP 7 : SP_Store_Exists
+Purpose : Koi active store exist karta hai ya nahi
+Called by: StoreDAL.StoreExists()
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Store_Exists
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        CASE
+            WHEN EXISTS (SELECT 1 FROM dbo.Stores WHERE IsActive = 1)
+            THEN CAST(1 AS BIT)   -- Store hai
+            ELSE CAST(0 AS BIT)   -- Koi store nahi
+        END AS StoreExists;
+END;
+
+===========================================================================
+SP 8 : SP_Store_GetAll
+Purpose : Sab stores ki list
+Called by: StoreDAL.GetAllStores()
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Store_GetAll
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT StoreId, StoreName, StoreCode, Address, Phone, Email,
+           IsActive, CreatedDate, UpdatedDate
+    FROM dbo.Stores
+    ORDER BY StoreId DESC;
+END;
+
+===========================================================================
+SP 9 : SP_Store_GetById
+Purpose : Ek specific store ki details
+Called by: StoreDAL.GetStoreById()
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Store_GetById
+    @StoreId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT StoreId, StoreName, StoreCode, Address, Phone, Email,
+           IsActive, CreatedDate, UpdatedDate
+    FROM dbo.Stores
+    WHERE StoreId = @StoreId;
+END;
+
+===========================================================================
+SP 10 : SP_Store_Create
+Purpose : Naya store banana
+Called by: StoreDAL.CreateStore()
+Returns : Naya StoreId
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Store_Create
+(
+    @StoreName NVARCHAR(150),
+    @StoreCode NVARCHAR(50),
+    @Address   NVARCHAR(500) = NULL,
+    @Phone     NVARCHAR(20)  = NULL,
+    @Email     NVARCHAR(150) = NULL
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (SELECT 1 FROM dbo.Stores WHERE StoreCode = @StoreCode)
+        THROW 50001, 'Store code already exists.', 1;
+
+    INSERT INTO dbo.Stores (StoreName, StoreCode, Address, Phone, Email, IsActive)
+    VALUES (@StoreName, @StoreCode, @Address, @Phone, @Email, 1);
+
+    SELECT CAST(SCOPE_IDENTITY() AS INT) AS StoreId;  -- Naya ID return
+END;
+
+===========================================================================
+SP 11 : SP_Store_Update
+Purpose : Store edit karna
+Called by: StoreDAL.UpdateStore()
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Store_Update
+(
+    @StoreId   INT,
+    @StoreName NVARCHAR(150),
+    @StoreCode NVARCHAR(50),
+    @Address   NVARCHAR(500) = NULL,
+    @Phone     NVARCHAR(20)  = NULL,
+    @Email     NVARCHAR(150) = NULL,
+    @IsActive  BIT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM dbo.Stores WHERE StoreId = @StoreId)
+        THROW 50002, 'Store not found.', 1;
+
+    IF EXISTS (
+        SELECT 1 FROM dbo.Stores
+        WHERE StoreCode = @StoreCode AND StoreId <> @StoreId
+    )
+        THROW 50003, 'Store code already exists.', 1;
+
+    UPDATE dbo.Stores
+    SET StoreName=@StoreName, StoreCode=@StoreCode, Address=@Address,
+        Phone=@Phone, Email=@Email, IsActive=@IsActive, UpdatedDate=GETDATE()
+    WHERE StoreId = @StoreId;
+
+    SELECT @StoreId AS StoreId;
+END;
+
+===========================================================================
+SP 12 : SP_Store_GetEmployees
+Purpose : Ek store ke sab employees ki list
+Called by: StoreDAL.GetStoreEmployees()
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Store_GetEmployees
+    @StoreId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT UserId, Name, Email, Role, StoreId, IsActive, CreatedDate, UpdatedDate
+    FROM dbo.Users
+    WHERE StoreId = @StoreId
+      AND Role    = 'Employee'
+    ORDER BY Name;
+END;
+
+===========================================================================
+SP 13 : SP_Store_CreateEmployee
+Purpose : Employee login account banana
+Called by: StoreDAL.CreateEmployee()
+Returns : Naya UserId
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Store_CreateEmployee
+(
+    @StoreId  INT,
+    @Name     NVARCHAR(100),
+    @Email    NVARCHAR(150),   -- Unique login email
+    @Password NVARCHAR(255)
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM dbo.Stores WHERE StoreId = @StoreId AND IsActive = 1)
+        THROW 50004, 'Store not found or inactive.', 1;
+
+    IF EXISTS (SELECT 1 FROM dbo.Users WHERE Email = @Email)
+        THROW 50005, 'Email already exists.', 1;
+
+    INSERT INTO dbo.Users (Name, Email, PasswordHash, Role, StoreId, IsActive)
+    VALUES (@Name, @Email, @Password, 'Employee', @StoreId, 1);
+
+    SELECT CAST(SCOPE_IDENTITY() AS INT) AS UserId;
+END;
+
+===========================================================================
+SP 14 : SP_Store_UpdateEmployeeStatus
+Purpose : Employee activate ya deactivate karna
+Called by: StoreDAL.UpdateEmployeeStatus()
+Returns : AffectedRows
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Store_UpdateEmployeeStatus
+(
+    @UserId   INT,
+    @StoreId  INT,
+    @IsActive BIT   -- 1=Activate, 0=Deactivate
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE dbo.Users
+    SET IsActive = @IsActive, UpdatedDate = GETDATE()
+    WHERE UserId  = @UserId
+      AND StoreId = @StoreId   -- Security: sirf apne store ka employee
+      AND Role    = 'Employee'; -- Admin accidentally block na ho
+
+    SELECT @@ROWCOUNT AS AffectedRows;
+END;
+
+===========================================================================
+SP 15 : SP_Invoice_CreateComplete   *** SABSE IMPORTANT SP ***
+Purpose : Pura invoice ek atomic transaction mein. 14 steps.
+Called by: InvoiceDAL.CreateCompleteInvoice()
+Returns : InvoiceId, InvoiceNo, TotalAmount
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Invoice_CreateComplete
+(
+    @CreatedBy     INT,
+    @CustomerName  NVARCHAR(150),
+    @CustomerPhone NVARCHAR(20) = NULL,
+    @InvoiceItems  dbo.InvoiceItemType READONLY  -- TVP (Table-Valued Parameter)
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;  -- Koi bhi error = automatic rollback
+
+    DECLARE @InvoiceId   INT;
+    DECLARE @InvoiceNo   NVARCHAR(30);
+    DECLARE @TotalAmount DECIMAL(18,2);
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- STEP 1: User validate karo
+        IF @CreatedBy <= 0
+            THROW 50001, 'Invalid user.', 1;
+        IF NOT EXISTS (SELECT 1 FROM dbo.Users WHERE UserId = @CreatedBy AND IsActive = 1)
+            THROW 50002, 'Invalid or inactive user.', 1;
+
+        -- STEP 2: Customer naam validate karo
+        SET @CustomerName = LTRIM(RTRIM(@CustomerName));
+        IF NULLIF(@CustomerName, '') IS NULL
+            THROW 50003, 'Customer name is required.', 1;
+
+        -- STEP 3: Koi item select kiya?
+        IF NOT EXISTS (SELECT 1 FROM @InvoiceItems)
+            THROW 50004, 'Please select at least one product.', 1;
+
+        -- STEP 4: Duplicate product check
+        IF EXISTS (
+            SELECT ProductId FROM @InvoiceItems GROUP BY ProductId HAVING COUNT(*) > 1
+        )
+            THROW 50005, 'Same product cannot be added multiple times.', 1;
+
+        -- STEP 5: Stock check
+        IF EXISTS (
+            SELECT 1 FROM @InvoiceItems I
+            LEFT JOIN dbo.Products P ON P.ProductId = I.ProductId
+            WHERE P.ProductId IS NULL OR P.IsActive = 0
+               OR I.ProductId <= 0 OR I.Quantity <= 0
+               OR P.Quantity < I.Quantity
+        )
+            THROW 50006, 'One or more products invalid or insufficient stock.', 1;
+
+        -- STEP 6: Total CALCULATE KARO — DATABASE SE PRICE (browser pe trust nahi)
+        SELECT @TotalAmount = SUM(CAST(P.Price * I.Quantity AS DECIMAL(18,2)))
+        FROM @InvoiceItems I
+        INNER JOIN dbo.Products P ON P.ProductId = I.ProductId;
+
+        IF @TotalAmount IS NULL OR @TotalAmount <= 0
+            THROW 50007, 'Invoice total must be greater than zero.', 1;
+
+        -- STEP 7: Invoice header insert (temporary InvoiceNo)
+        INSERT INTO dbo.Invoices
+        (InvoiceNo, CustomerName, CustomerPhone, CreatedBy, InvoiceDate, TotalAmount)
+        VALUES
+        ('TEMP', @CustomerName, NULLIF(LTRIM(RTRIM(@CustomerPhone)),''), @CreatedBy, GETDATE(), @TotalAmount);
+
+        -- STEP 8: New ID capture
+        SET @InvoiceId = CONVERT(INT, SCOPE_IDENTITY());
+
+        -- STEP 9: InvoiceNo generate karo  Format: INV-20261005-000001
+        SET @InvoiceNo =
+            'INV-' + CONVERT(CHAR(8), GETDATE(), 112) + '-' +
+            RIGHT('000000' + CAST(@InvoiceId AS NVARCHAR(6)), 6);
+
+        -- STEP 10: InvoiceNo update karo
+        UPDATE dbo.Invoices SET InvoiceNo = @InvoiceNo WHERE InvoiceId = @InvoiceId;
+
+        -- STEP 11: Line items insert (DB se price lo)
+        INSERT INTO dbo.InvoiceDetails
+        (InvoiceId, ProductId, ProductName, Quantity, UnitPrice, TotalAmount)
+        SELECT @InvoiceId, I.ProductId, P.ProductName, I.Quantity,
+               P.Price, CAST(P.Price * I.Quantity AS DECIMAL(18,2))
+        FROM @InvoiceItems I
+        INNER JOIN dbo.Products P ON P.ProductId = I.ProductId;
+
+        -- STEP 12: Stock deduct karo
+        UPDATE P
+        SET P.Quantity = P.Quantity - I.Quantity, P.UpdatedDate = GETDATE()
+        FROM dbo.Products P
+        INNER JOIN @InvoiceItems I ON I.ProductId = P.ProductId;
+
+        -- STEP 13: COMMIT
+        COMMIT TRANSACTION;
+
+        -- STEP 14: Result return karo
+        SELECT @InvoiceId AS InvoiceId, @InvoiceNo AS InvoiceNo, @TotalAmount AS TotalAmount;
+
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        THROW;  -- Error C# ko forward karo
+    END CATCH
+END;
+
+Error Codes:
+    50001 = Invalid user ID
+    50002 = User inactive ya exist nahi
+    50003 = Customer name missing
+    50004 = Koi product select nahi kiya
+    50005 = Duplicate product in list
+    50006 = Invalid product / insufficient stock
+    50007 = Total amount zero ya negative
+
+===========================================================================
+SP 16 : SP_Invoice_GetById
+Purpose : Invoice header details (Bill view ke liye)
+Called by: InvoiceDAL.GetInvoiceById()
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Invoice_GetById
+(
+    @InvoiceId INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        I.InvoiceId, I.InvoiceNo, I.CustomerName, I.CustomerPhone,
+        I.CreatedBy,
+        U.Name AS CreatedByName,   -- Employee naam JOIN se
+        I.InvoiceDate, I.TotalAmount
+    FROM dbo.Invoices I
+    LEFT JOIN dbo.Users U ON U.UserId = I.CreatedBy   -- LEFT JOIN = employee deleted ho toh bhi invoice dikhe
+    WHERE I.InvoiceId = @InvoiceId;
+END;
+
+===========================================================================
+SP 17 : SP_Invoice_GetItems
+Purpose : Invoice ke sab line items (Bill mein product list)
+Called by: InvoiceDAL.GetInvoiceItems()
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Invoice_GetItems
+(
+    @InvoiceId INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @InvoiceId <= 0
+        THROW 50001, 'Invalid invoice ID.', 1;
+
+    SELECT
+        InvoiceDetailId, InvoiceId, ProductId,
+        ProductName,    -- Snapshot (us waqt ka naam)
+        Quantity,
+        UnitPrice,      -- Snapshot (us waqt ka price)
+        TotalAmount
+    FROM dbo.InvoiceDetails
+    WHERE InvoiceId = @InvoiceId
+    ORDER BY InvoiceDetailId;
+END;
+
+===========================================================================
+SP 18 : SP_Invoice_GetByEmployee
+Purpose : Employee ke sab invoices (MyInvoices history page)
+Called by: InvoiceDAL.GetEmployeeInvoices()
+===========================================================================
+
+CREATE OR ALTER PROCEDURE dbo.SP_Invoice_GetByEmployee
+(
+    @CreatedBy INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT InvoiceId, InvoiceNo, CustomerName, CustomerPhone,
+           CreatedBy, InvoiceDate, TotalAmount
+    FROM dbo.Invoices
+    WHERE CreatedBy = @CreatedBy          -- Sirf is employee ke
+    ORDER BY InvoiceDate DESC, InvoiceId DESC;  -- Naye pehle
+END;
+
+===========================================================================
+                    PART 3 : TABLE RELATIONSHIPS
+===========================================================================
+
+    Stores
+      |
+      |--- (FK_Users_Stores) --- Users (Employees)
+                                   |
+                                   |--- (FK_Invoices_Users) --- Invoices
+                                                                   |
+                                   Products --- (FK_InvoiceDetails_Products)
+                                                   |
+                                                   +--- InvoiceDetails
+                                                   |    (FK_InvoiceDetails_Invoices)
+                                                   +--- (linked to Invoices)
+
+    1 Store      → Many Employees
+    1 Employee   → Many Invoices
+    1 Invoice    → Many InvoiceDetails
+    1 Product    → Many InvoiceDetails
+
+===========================================================================
+                    PART 4 : LOGIN CREDENTIALS
+===========================================================================
+
+    Role       Email                Password
+    ---------  -------------------  ----------
+    Admin      admin@shop.com       Admin@123
+    Employee   rahul@shop.com       Rahul@123
+    Employee   amit@shop.com        Amit@123
+
+===========================================================================
+                    PART 5 : CONNECTION STRING
+===========================================================================
+
+    appsettings.json:
+    "ShopManagementDB": "Server=(localdb)\\MSSQLLocalDB;Database=ShopManagementDB;
+                         Integrated Security=True;TrustServerCertificate=True;"
+
+    App URL: http://localhost:5271
+
+===========================================================================
+END OF FILE — ShopManagementDB Complete Reference
+===========================================================================

@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopManagement - Master Code & Terminology Explorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: #1f293d;
+            --bg-card-hover: #26334d;
+            --border-color: #2b3954;
+            --accent-cyan: #00f2fe;
+            --accent-blue: #3b82f6;
+            --accent-purple: #a855f7;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-pink: #ec4899;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --code-bg: #0b1120;
+            --highlight: #fef08a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        /* STICKY TOP CONTROLLER BAR */
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid var(--border-color);
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-brand h2 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .dropdown-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .custom-select {
+            background: #1e293b;
+            color: #f1f5f9;
+            border: 1px solid var(--accent-cyan);
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.2);
+            transition: all 0.2s;
+            max-width: 380px;
+        }
+
+        .custom-select:hover, .custom-select:focus {
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+            border-color: #fff;
+        }
+
+        .tab-btn {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            background: var(--accent-blue);
+            color: #fff;
+            border-color: var(--accent-cyan);
+        }
+
+        /* MAIN CONTAINER */
+        .container {
+            max-width: 1450px;
+            margin: 30px auto;
+            padding: 0 24px;
+        }
+
+        /* HEADER HERO */
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(180deg, rgba(31, 41, 61, 0.5) 0%, rgba(10, 14, 23, 0) 100%);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #9d4edd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* SECTION TITLES */
+        .section-header {
+            margin: 40px 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-header h2 {
+            font-size: 1.6rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .file-pill {
+            background: #1e293b;
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        /* TERM CARD GRID */
+        .term-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .term-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .term-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .term-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-3px);
+            background: var(--bg-card-hover);
+            box-shadow: 0 12px 30px rgba(0, 242, 254, 0.15);
+        }
+
+        .term-card.highlight-target {
+            border-color: var(--accent-cyan) !important;
+            box-shadow: 0 0 35px rgba(0, 242, 254, 0.6) !important;
+            transform: scale(1.02);
+            background: #172554 !important;
+        }
+
+        .term-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .term-keyword {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .term-category {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 12px;
+            letter-spacing: 0.05em;
+        }
+
+        .cat-js { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid #fbbf24; }
+        .cat-kendo { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid #60a5fa; }
+        .cat-net { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid #c084fc; }
+        .cat-excel { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid #34d399; }
+        .cat-sql { background: rgba(236, 72, 153, 0.15); color: #f472b6; border: 1px solid #f472b6; }
+
+        .term-meaning {
+            font-size: 0.95rem;
+            color: #e2e8f0;
+            line-height: 1.5;
+        }
+
+        .term-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.85rem;
+            background: rgba(0,0,0,0.25);
+            padding: 12px 14px;
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-cyan);
+        }
+
+        .detail-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .detail-label {
+            font-weight: 700;
+            color: var(--accent-cyan);
+            min-width: 90px;
+        }
+
+        .detail-val {
+            color: #cbd5e1;
+        }
+
+        /* CODE BLOCK */
+        .code-box {
+            background: var(--code-bg);
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.82rem;
+            color: #e2e8f0;
+            overflow-x: auto;
+        }
+
+        .code-box pre {
+            margin: 0;
+        }
+
+        /* SYNTAX HIGHLIGHT */
+        .kw { color: #f472b6; font-weight: 600; }
+        .fn { color: #60a5fa; }
+        .st { color: #34d399; }
+        .nm { color: #fbbf24; }
+        .cm { color: #64748b; font-style: italic; }
+        .vr { color: #38bdf8; }
+
+        /* QUICK FLOAT BADGE */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--accent-blue);
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            border: 1px solid var(--accent-cyan);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .back-to-top:hover {
+            background: var(--accent-cyan);
+            color: #000;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- STICKY TOP CONTROLLER & DROPDOWN SELECTOR -->
+    <nav class="sticky-nav">
+        <div class="nav-brand">
+            <h2>⚡ ShopManagement Terminology & Code Explorer</h2>
+        </div>
+
+        <div class="nav-controls">
+            <span class="dropdown-label">🔍 Jump to Term / Concept:</span>
+            <select id="termSelector" class="custom-select" onchange="navigateToTerm(this.value)">
+                <option value="">-- Choose any Keyword / Function --</option>
+                
+                <optgroup label="JavaScript & AJAX (product.js & employee.js)">
+                    <option value="term-doc-ready">$(document).ready()</option>
+                    <option value="term-loadProducts">loadProducts() / loadEmployeeProducts()</option>
+                    <option value="term-ajax">$.ajax()</option>
+                    <option value="term-datatype-json">dataType: "json"</option>
+                    <option value="term-ajax-success">success: function(response)</option>
+                    <option value="term-ajax-error">error: function(xhr)</option>
+                    <option value="term-escapeHtml">escapeHtml(value)</option>
+                    <option value="term-antiforgery-js">__RequestVerificationToken (AJAX)</option>
+                    <option value="term-delegated-click">$(document).on("click", ...)</option>
+                    <option value="term-window-open">window.open(imageUrl, "_blank")</option>
+                </optgroup>
+
+                <optgroup label="Kendo UI Grid Configuration">
+                    <option value="term-kendoGrid">$("#grid").kendoGrid()</option>
+                    <option value="term-data-kendo">$("#grid").data("kendoGrid")</option>
+                    <option value="term-destroy-empty">grid.destroy() & $("#grid").empty()</option>
+                    <option value="term-datasource">dataSource: { data: ... }</option>
+                    <option value="term-schema-model">schema.model.fields (Type mapping)</option>
+                    <option value="term-pagesize">pageSize & pageable</option>
+                    <option value="term-norecords">noRecords: { template: ... }</option>
+                    <option value="term-columns">columns: [ { field, title, width } ]</option>
+                    <option value="term-kendo-template">template: function(item) { ... }</option>
+                    <option value="term-hash-template">#= isActive ? 'Active' : 'Inactive' #</option>
+                    <option value="term-kendo-format">format: "{0:n2}"</option>
+                    <option value="term-kendo-button">class='k-button k-button-solid-...'</option>
+                </optgroup>
+
+                <optgroup label="Excel Import & ClosedXML (ProductController.cs)">
+                    <option value="term-closedxml">using ClosedXML.Excel</option>
+                    <option value="term-iformfile">IFormFile? excelFile</option>
+                    <option value="term-openreadstream">excelFile.OpenReadStream()</option>
+                    <option value="term-xlworkbook">new XLWorkbook(stream)</option>
+                    <option value="term-worksheets">workbook.Worksheets.FirstOrDefault()</option>
+                    <option value="term-lastrowused">worksheet.LastRowUsed()?.RowNumber()</option>
+                    <option value="term-cell-getstring">worksheet.Cell(row, col).GetString().Trim()</option>
+                    <option value="term-tryparse">int.TryParse() & decimal.TryParse()</option>
+                </optgroup>
+
+                <optgroup label="C# Controller, File Upload & Security">
+                    <option value="term-validateantiforgery">[ValidateAntiForgeryToken]</option>
+                    <option value="term-httpget-post">[HttpGet] & [HttpPost]</option>
+                    <option value="term-iactionresult">IActionResult & return Json(...)</option>
+                    <option value="term-tempdata">TempData["SuccessMessage"] / ["ErrorMessage"]</option>
+                    <option value="term-redirecttoaction">RedirectToAction("Index", "Dashboard")</option>
+                    <option value="term-saveimage">SaveImage() & Guid.NewGuid()</option>
+                    <option value="term-iwebhostenvironment">IWebHostEnvironment.WebRootPath</option>
+                </optgroup>
+
+                <optgroup label="ADO.NET, DataTable & Stored Procedures">
+                    <option value="term-datatable">System.Data.DataTable</option>
+                    <option value="term-datarow">DataRow & dt.Rows</option>
+                    <option value="term-dbnull">row["Col"] == DBNull.Value</option>
+                    <option value="term-convert">Convert.ToInt32() / Convert.ToDecimal()</option>
+                    <option value="term-sqldataadapter">SqlDataAdapter.Fill(dataTable)</option>
+                    <option value="term-sqlcommand">SqlCommand & CommandType.StoredProcedure</option>
+                    <option value="term-sp-getall">SP_Product_GetAll (WHERE IsActive=1)</option>
+                </optgroup>
+            </select>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- HERO INTRO -->
+        <div class="hero">
+            <h1>Comprehensive Code & Terminology Encyclopedia</h1>
+            <p>Har ek method, keyword, aur configuration ka deep breakdown. Dropdown se kisi bhi term ko select karein aur uske work karne ka tarika, internal flow aur code context dekhein.</p>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- SECTION 1: JAVASCRIPT & AJAX (product.js & employee.js) -->
+        <!-- ============================================================== -->
+        <div class="section-header">
+            <h2>📜 1. JavaScript & AJAX Execution Engine</h2>
+            <span class="file-pill">wwwroot/js/pages/product.js & employee.js</span>
+        </div>
+
+        <div class="term-grid">
+
+            <!-- Term 1: $(document).ready() -->
+            <div id="term-doc-ready" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">$(document).ready(...)</span>
+                    <span class="term-category cat-js">Lifecycle Event</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Browser jab pura HTML DOM tree memory me parse karke ready kar leta hai, tab ye function automatically trigger hota hai (bina images ya stylesheets ke download complete hone ka wait kiye).
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">File:</span><span class="detail-val">product.js:L1, employee.js:L1</span></div>
+                    <div class="detail-row"><span class="detail-label">Kyu Use Hua:</span><span class="detail-val">Taaki DOM element <code>#productGrid</code> available ho tabhi JS execution start ho. Agar ye na ho toh DOM element null milega aur grid fail ho jayegi.</span></div>
+                    <div class="detail-row"><span class="detail-label">Internal Flow:</span><span class="detail-val">Browser DOMContentLoaded event &rarr; jQuery wrapper catches it &rarr; executes <code>loadProducts()</code>.</span></div>
+                </div>
+                <div class="code-box">
+<pre>$(<span class="vr">document</span>).<span class="fn">ready</span>(<span class="kw">function</span> () {
+    <span class="fn">loadProducts</span>(); <span class="cm">// First line of execution</span>
+});</pre>
+                </div>
+            </div>
+
+            <!-- Term 2: loadProducts() -->
+            <div id="term-loadProducts" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">loadProducts() / loadEmployeeProducts()</span>
+                    <span class="term-category cat-js">Custom Function</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Client-side controller function jo AJAX request bhejta hai aur data aane ke baad Kendo UI Grid ko dynamically build ya refresh karta hai.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">File:</span><span class="detail-val">product.js:L5, employee.js:L7</span></div>
+                    <div class="detail-row"><span class="detail-label">Double Role:</span><span class="detail-val">1) Initial page load pe call hota hai. 2) Delete operation ke baad Grid ko re-render karne ke liye dobara call hota hai bina page refresh kiye!</span></div>
+                </div>
+                <div class="code-box">
+<pre><span class="kw">function</span> <span class="fn">loadProducts</span>() {
+    $.<span class="fn">ajax</span>({
+        url: <span class="st">"/Product/GetProducts"</span>,
+        type: <span class="st">"GET"</span>,
+        dataType: <span class="st">"json"</span>,
+        <span class="cm">/* ... success & error handling ... */</span>
+    });
+}</pre>
+                </div>
+            </div>
+
+            <!-- Term 3: $.ajax() -->
+            <div id="term-ajax" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">$.ajax({ ... })</span>
+                    <span class="term-category cat-js">HTTP Client</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> <em>Asynchronous JavaScript and XML</em>. Browser me background me bina full web page reload kiye server se communication karne ka mechanism.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">File:</span><span class="detail-val">product.js:L7, employee.js:L9</span></div>
+                    <div class="detail-row"><span class="detail-label">Properties:</span><span class="detail-val"><code>url</code> (target endpoint), <code>type</code> (HTTP verb GET/POST), <code>dataType</code> (expected response type), <code>success</code>, <code>error</code>.</span></div>
+                    <div class="detail-row"><span class="detail-label">Faayda:</span><span class="detail-val">User ko seamless Single Page App (SPA) experience milta hai, flicker nahi hota.</span></div>
+                </div>
+                <div class="code-box">
+<pre>$.<span class="fn">ajax</span>({
+    url: <span class="st">"/Product/GetProducts"</span>,
+    type: <span class="st">"GET"</span>,
+    dataType: <span class="st">"json"</span>
+});</pre>
+                </div>
+            </div>
+
+            <!-- Term 4: dataType: "json" -->
+            <div id="term-datatype-json" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">dataType: "json"</span>
+                    <span class="term-category cat-js">Config Option</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> jQuery ko batata hai ki server se aane wala raw text string ek <strong>JSON format</strong> hai, isliye jQuery usko automatically <code>JSON.parse()</code> karke direct JavaScript Object bana de.
+                </div>
+                <div class="detail-row"><span class="detail-label">Behind Scenes:</span><span class="detail-val">Agar ye na ho toh response text string format me mil sakta hai jise manually <code>JSON.parse(res)</code> karna padega.</span></div>
+                <div class="code-box">
+<pre><span class="cm">// Server returns raw string: '{"success":true,"data":[...]}'</span>
+<span class="cm">// With dataType: 'json', response becomes a live JS Object:</span>
+<span class="kw">if</span> (response.success) {
+    console.<span class="fn">log</span>(response.data[<span class="nm">0</span>].productName); <span class="cm">// Direct property access!</span>
+}</pre>
+                </div>
+            </div>
+
+            <!-- Term 5: success & error -->
+            <div id="term-ajax-success" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">success: function(response)</span>
+                    <span class="term-category cat-js">Callback</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Jab server HTTP status <code>200 OK</code> return karta hai, tab ye function execute hota hai. Iske andar <code>response</code> parameter me Controller ka JSON payload aata hai.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">Business Check:</span><span class="detail-val"><code>if (!response.success)</code> check karta hai ki server ne status ok bheja par application level error toh nahi hai (e.g. database down).</span></div>
+                </div>
+                <div class="code-box">
+<pre><span class="fn">success</span>: <span class="kw">function</span> (<span class="vr">response</span>) {
+    <span class="kw">if</span> (!<span class="vr">response</span>.success) {
+        <span class="fn">alert</span>(<span class="vr">response</span>.message || <span class="st">"Unable to load products."</span>);
+        <span class="kw">return</span>;
+    }
+    <span class="cm">// Bind to Kendo Grid</span>
+}</pre>
+                </div>
+            </div>
+
+            <!-- Term 6: error callback -->
+            <div id="term-ajax-error" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">error: function(xhr)</span>
+                    <span class="term-category cat-js">Callback</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Jab server HTTP error return karta hai (jaise 404 Not Found, 500 Internal Server Error, ya network drop), tab ye callback trigger hota hai.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">xhr Object:</span><span class="detail-val"><code>XMLHttpRequest</code> object jisme <code>status</code> (500) aur <code>responseText</code> rehta hai.</span></div>
+                    <div class="detail-row"><span class="detail-label">Defensive Code:</span><span class="detail-val">Code <code>try { JSON.parse(xhr.responseText) } catch</code> use karta hai taaki agar server ne JSON error message bheja ho toh alert me dikh sake.</span></div>
+                </div>
+                <div class="code-box">
+<pre><span class="fn">error</span>: <span class="kw">function</span> (<span class="vr">xhr</span>) {
+    console.<span class="fn">error</span>(<span class="st">"GetProducts error:"</span>, <span class="vr">xhr</span>.responseText);
+    <span class="kw">var</span> message = <span class="st">"Unable to load products."</span>;
+    <span class="kw">try</span> {
+        <span class="kw">var</span> res = JSON.<span class="fn">parse</span>(<span class="vr">xhr</span>.responseText);
+        <span class="kw">if</span> (res.message) message = res.message;
+    } <span class="kw">catch</span> (e) { }
+    <span class="fn">alert</span>(message);
+}</pre>
+                </div>
+            </div>
+
+            <!-- Term 7: escapeHtml -->
+            <div id="term-escapeHtml" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">escapeHtml(value)</span>
+                    <span class="term-category cat-js">Security Sanitizer</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> <em>XSS (Cross-Site Scripting) Prevention</em>. String ke dangerous characters (<code>&lt;</code>, <code>&gt;</code>, <code>"</code>, <code>'</code>, <code>&amp;</code>) ko HTML entities (<code>&amp;lt;</code>, <code>&amp;gt;</code>) me convert karta hai.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">File:</span><span class="detail-val">employee.js:L438-L456</span></div>
+                    <div class="detail-row"><span class="detail-label">Kyu Jaruri Hai:</span><span class="detail-val">Agar product name me koi malicious script ho (jaise <code>&lt;script&gt;stealCookies()&lt;/script&gt;</code>), toh browser use code samajhkar execute na kare, balki plain text ki tarah display kare!</span></div>
+                </div>
+                <div class="code-box">
+<pre><span class="kw">function</span> <span class="fn">escapeHtml</span>(<span class="vr">value</span>) {
+    <span class="kw">if</span> (<span class="vr">value</span> == <span class="kw">null</span>) <span class="kw">return</span> <span class="st">""</span>;
+    <span class="kw">return</span> <span class="fn">String</span>(<span class="vr">value</span>)
+        .<span class="fn">replace</span>(/&/g, <span class="st">"&amp;amp;"</span>)
+        .<span class="fn">replace</span>(/&lt;/g, <span class="st">"&amp;lt;"</span>)
+        .<span class="fn">replace</span>(/&gt;/g, <span class="st">"&amp;gt;"</span>)
+        .<span class="fn">replace</span>(/"/g, <span class="st">"&amp;quot;"</span>);
+}</pre>
+                </div>
+            </div>
+
+            <!-- Term 8: Anti-Forgery Token in JS -->
+            <div id="term-antiforgery-js" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">__RequestVerificationToken</span>
+                    <span class="term-category cat-js">Security Token</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> <em>CSRF (Cross-Site Request Forgery) Prevention</em>. ASP.NET Core Razor view me hidden input generate karta hai. AJAX POST request ke sath is token ko bhejna mandatory hota hai.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">File:</span><span class="detail-val">product.js:L177-L196</span></div>
+                    <div class="detail-row"><span class="detail-label">Kaise Kaam Karta Hai:</span><span class="detail-val">Server session cookie me ek encrypted key hoti hai aur view ke hidden input me doosri key. Server dono ko compare karke request validate karta hai.</span></div>
+                </div>
+                <div class="code-box">
+<pre><span class="kw">var</span> token = $(<span class="st">"input[name='__RequestVerificationToken']"</span>).<span class="fn">first</span>().<span class="fn">val</span>();
+
+$.<span class="fn">ajax</span>({
+    url: <span class="st">"/Product/Delete"</span>,
+    type: <span class="st">"POST"</span>,
+    data: {
+        id: productId,
+        __RequestVerificationToken: token <span class="cm">// Required by [ValidateAntiForgeryToken]</span>
+    }
+});</pre>
+                </div>
+            </div>
+
+            <!-- Term 9: Delegated Click Event -->
+            <div id="term-delegated-click" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">$(document).on("click", ...)</span>
+                    <span class="term-category cat-js">Event Delegation</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Dynamic elements ke liye event listener. Normal <code>$(".deleteProduct").click()</code> dynamically create hue rows par kaam nahi karega, par <code>$(document).on()</code> dynamically banaye gaye buttons par bhi perfectly click catch karta hai!
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">File:</span><span class="detail-val">product.js:L169, employee.js:L412</span></div>
+                    <div class="detail-row"><span class="detail-label">Reason:</span><span class="detail-val">Kendo grid tables dynamically AJAX aane ke baad DOM me insert hoti hain. Event bubbling document level pe listener ko call karti hai.</span></div>
+                </div>
+                <div class="code-box">
+<pre>$(<span class="vr">document</span>).<span class="fn">on</span>(<span class="st">"click"</span>, <span class="st">".deleteProduct"</span>, <span class="kw">function</span> () {
+    <span class="kw">var</span> id = $(<span class="kw">this</span>).<span class="fn">data</span>(<span class="st">"id"</span>); <span class="cm">// Reads data-id attribute</span>
+    <span class="cm">// Show confirm box and dispatch Delete AJAX</span>
+});</pre>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- SECTION 2: KENDO UI GRID -->
+        <!-- ============================================================== -->
+        <div class="section-header">
+            <h2>📊 2. Kendo UI Grid Architecture & Options</h2>
+            <span class="file-pill">kendo.all.min.js & product.js</span>
+        </div>
+
+        <div class="term-grid">
+
+            <!-- Term: kendoGrid() -->
+            <div id="term-kendoGrid" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">$("#productGrid").kendoGrid()</span>
+                    <span class="term-category cat-kendo">Grid Initializer</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Telerik Kendo UI jQuery plugin method jo ek normal <code>&lt;div&gt;</code> ko ek powerful interactive grid table me convert kar deta hai (sorting, pagination, column resizing, custom templates ke sath).
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">File:</span><span class="detail-val">product.js:L26, employee.js:L54</span></div>
+                    <div class="detail-row"><span class="detail-label">DOM Result:</span><span class="detail-val">Div ke andar <code>k-grid-header</code>, <code>k-grid-content</code>, aur <code>table</code> inject karta hai with full keyboard navigation and accessibility tags.</span></div>
+                </div>
+                <div class="code-box">
+<pre>$(<span class="st">"#productGrid"</span>).<span class="fn">kendoGrid</span>({
+    dataSource: { data: response.data },
+    height: <span class="nm">500</span>,
+    sortable: <span class="kw">true</span>,
+    resizable: <span class="kw">true</span>,
+    columns: [ <span class="cm">/* column configs */</span> ]
+});</pre>
+                </div>
+            </div>
+
+            <!-- Term: destroy() & empty() -->
+            <div id="term-destroy-empty" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">grid.destroy() & empty()</span>
+                    <span class="term-category cat-kendo">Memory Management</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Purane grid component ko memory se clean karna. Agar user refresh kare ya delete ke baad dobara grid bind ho, toh purane event listeners aur DOM nodes ko detach karta hai taaki browser crash ya memory leak na ho.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">File:</span><span class="detail-val">product.js:L19-L24, employee.js:L40-L51</span></div>
+                    <div class="detail-row"><span class="detail-label">What happens without it:</span><span class="detail-val">Purana grid instance duplicate ho jayega ya header repeat hone lagega.</span></div>
+                </div>
+                <div class="code-box">
+<pre><span class="kw">var</span> existingGrid = $(<span class="st">"#productGrid"</span>).<span class="fn">data</span>(<span class="st">"kendoGrid"</span>);
+<span class="kw">if</span> (existingGrid) {
+    existingGrid.<span class="fn">destroy</span>(); <span class="cm">// Detaches all widget event bindings</span>
+    $(<span class="st">"#productGrid"</span>).<span class="fn">empty</span>();   <span class="cm">// Removes all internal HTML nodes</span>
+}</pre>
+                </div>
+            </div>
+
+            <!-- Term: dataSource -->
+            <div id="term-datasource" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">dataSource: { data: ... }</span>
+                    <span class="term-category cat-kendo">Data Binding</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Kendo UI ka core state-management object (`kendo.data.DataSource`). Ye data array ko internally wrap karke sorting, filtering, aur pagination ke calculations handle karta hai.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">File:</span><span class="detail-val">product.js:L28, employee.js:L56</span></div>
+                    <div class="detail-row"><span class="detail-label">Input:</span><span class="detail-val">Controller ka return kiya hua clean JSON array (e.g. <code>[ { productId: 1, ... } ]</code>).</span></div>
+                </div>
+                <div class="code-box">
+<pre>dataSource: {
+    data: response.data,
+    pageSize: <span class="nm">10</span> <span class="cm">// Controls how many records shown per page</span>
+}</pre>
+                </div>
+            </div>
+
+            <!-- Term: schema.model.fields -->
+            <div id="term-schema-model" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">schema: { model: { fields } }</span>
+                    <span class="term-category cat-kendo">Type Schema</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Kendo UI ko explicitly batata hai ki kaunsa field kis data type ka hai (<code>number</code>, <code>string</code>, <code>boolean</code>, <code>date</code>).
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">File:</span><span class="detail-val">employee.js:L60-L97</span></div>
+                    <div class="detail-row"><span class="detail-label">Crucial Benefit:</span><span class="detail-val">Sorting ke time numbers (1, 2, 10) alphabetically sort na ho balki numeric order me sort ho (1, 2, 10 instead of 1, 10, 2).</span></div>
+                </div>
+                <div class="code-box">
+<pre>schema: {
+    model: {
+        fields: {
+            productId: { type: <span class="st">"number"</span> },
+            productName: { type: <span class="st">"string"</span> },
+            quantity: { type: <span class="st">"number"</span> },
+            price: { type: <span class="st">"number"</span> },
+            isActive: { type: <span class="st">"boolean"</span> }
+        }
+    }
+}</pre>
+                </div>
+            </div>
+
+            <!-- Term: template: function -->
+            <div id="term-kendo-template" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">template: function(item) { ... }</span>
+                    <span class="term-category cat-kendo">Custom Cell Renderer</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Kendo column ke plain text display ko customize karke HTML output generate karne ka function.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">File:</span><span class="detail-val">product.js:L50, employee.js:L156</span></div>
+                    <div class="detail-row"><span class="detail-label">Used For:</span><span class="detail-val">Product Image thumbnail render karna, stock quantity pe badges lagana (Out of Stock vs Available), formatted currency banana.</span></div>
+                </div>
+                <div class="code-box">
+<pre>template: <span class="kw">function</span> (<span class="vr">p</span>) {
+    <span class="kw">if</span> (!<span class="vr">p</span>.imagePath) <span class="kw">return</span> <span class="st">"No Image"</span>;
+    <span class="kw">return</span> `&lt;img src=<span class="st">"${p.imagePath}"</span> class=<span class="st">"product-image"</span> style=<span class="st">"width:60px;"</span> /&gt;`;
+}</pre>
+                </div>
+            </div>
+
+            <!-- Term: #= isActive ? 'Active' : 'Inactive' # -->
+            <div id="term-hash-template" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">#= expression # (Hash Template)</span>
+                    <span class="term-category cat-kendo">Kendo Micro-syntax</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Kendo ka built-in lightweight templating syntax. <code>#= #</code> ke andar likha gaya JavaScript expression HTML me evaluate hoke render hota hai.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">File:</span><span class="detail-val">product.js:L121</span></div>
+                    <div class="detail-row"><span class="detail-label">Difference:</span><span class="detail-val"><code>#= #</code> unescaped HTML render karta hai, jabki <code>#: #</code> HTML-encoded render karta hai.</span></div>
+                </div>
+                <div class="code-box">
+<pre>template: <span class="st">"#= isActive ? 'Active' : 'Inactive' #"</span>
+<span class="cm">// Agar isActive true hai to 'Active' render hoga, false pe 'Inactive'</span></pre>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- SECTION 3: EXCEL IMPORT & CLOSEDXML -->
+        <!-- ============================================================== -->
+        <div class="section-header">
+            <h2>📊 3. Excel Processing & ClosedXML Deep Dive</h2>
+            <span class="file-pill">ProductController.cs (Lines 182-372) & ClosedXML.dll</span>
+        </div>
+
+        <div class="term-grid">
+
+            <!-- Term: ClosedXML -->
+            <div id="term-closedxml" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">using ClosedXML.Excel</span>
+                    <span class="term-category cat-excel">Library Namespace</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> ClosedXML ek high-performance .NET library hai jo Microsoft Office ya Interop install kiye bina direct OpenXML format (`.xlsx`) files ko read aur write kar sakti hai.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">Package:</span><span class="detail-val"><code>ClosedXML.dll</code> (Nuget)</span></div>
+                    <div class="detail-row"><span class="detail-label">Kyu Best Hai:</span><span class="detail-val">Server pe Microsoft Excel install karne ki bilkul jarurat nahi hoti. Fast, memory-efficient aur safe hai.</span></div>
+                </div>
+                <div class="code-box">
+<pre><span class="kw">using</span> ClosedXML.Excel; <span class="cm">// Top of ProductController.cs</span></pre>
+                </div>
+            </div>
+
+            <!-- Term: IFormFile? excelFile -->
+            <div id="term-iformfile" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">IFormFile? excelFile</span>
+                    <span class="term-category cat-net">HTTP File Upload</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> ASP.NET Core interface jo HTTP multipart/form-data POST request me upload ki gayi binary file ko represent karta hai.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">Properties:</span><span class="detail-val"><code>FileName</code>, <code>Length</code> (in bytes), <code>ContentType</code>, <code>OpenReadStream()</code>.</span></div>
+                    <div class="detail-row"><span class="detail-label">Validation:</span><span class="detail-val">Check hota hai ki file null toh nahi hai aur extension <code>.xlsx</code> hai ya nahi.</span></div>
+                </div>
+                <div class="code-box">
+<pre><span class="kw">public</span> IActionResult <span class="fn">Import</span>(IFormFile? <span class="vr">excelFile</span>)
+{
+    <span class="kw">if</span> (<span class="vr">excelFile</span> == <span class="kw">null</span> || <span class="vr">excelFile</span>.Length == <span class="nm">0</span>) {
+        TempData[<span class="st">"ErrorMessage"</span>] = <span class="st">"Please select an Excel file."</span>;
+        <span class="kw">return</span> <span class="fn">RedirectToAction</span>(<span class="st">"Import"</span>);
+    }
+}</pre>
+                </div>
+            </div>
+
+            <!-- Term: OpenReadStream() & XLWorkbook -->
+            <div id="term-openreadstream" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">excelFile.OpenReadStream() & new XLWorkbook</span>
+                    <span class="term-category cat-excel">Stream Parsing</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Uploaded file ko disk par save kiye bina, direct memory stream ke through read karta hai aur <code>XLWorkbook</code> object me load karta hai.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">Performance:</span><span class="detail-val">Disk I/O save hoti hai; temporary file delete karne ka jhanjhat nahi rehta.</span></div>
+                    <div class="detail-row"><span class="detail-label">using Statement:</span><span class="detail-val"><code>using var</code> guarantee karta hai ki stream aur workbook process hone ke baad memory automatically dispose ho jaye.</span></div>
+                </div>
+                <div class="code-box">
+<pre><span class="kw">using var</span> stream = excelFile.<span class="fn">OpenReadStream</span>();
+<span class="kw">using var</span> workbook = <span class="kw">new</span> <span class="fn">XLWorkbook</span>(stream);
+<span class="kw">var</span> worksheet = workbook.Worksheets.<span class="fn">FirstOrDefault</span>();</pre>
+                </div>
+            </div>
+
+            <!-- Term: LastRowUsed() & RowNumber() -->
+            <div id="term-lastrowused" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">worksheet.LastRowUsed()?.RowNumber()</span>
+                    <span class="term-category cat-excel">Range Detection</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Excel sheet ke aakhri us row ka number nikalta hai jisme actually koi data ya value likhi hui hai.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">Kyu Smart Hai:</span><span class="detail-val">Excel sheet me 10 lakh rows hoti hain. Ye pura sheet scan karne ki jagah sirf wahi tak rukta hai jahan tak user ne data fill kiya hai!</span></div>
+                    <div class="detail-row"><span class="detail-label">Validation:</span><span class="detail-val">Agar <code>lastRow &lt; 2</code> hai matlab sheet me sirf header hai ya sheet khali hai.</span></div>
+                </div>
+                <div class="code-box">
+<pre><span class="kw">int</span> lastRow = worksheet.<span class="fn">LastRowUsed</span>()?.<span class="fn">RowNumber</span>() ?? <span class="nm">0</span>;
+<span class="kw">if</span> (lastRow &lt; <span class="nm">2</span>) {
+    TempData[<span class="st">"ErrorMessage"</span>] = <span class="st">"Excel file does not contain product data."</span>;
+    <span class="kw">return</span> <span class="fn">RedirectToAction</span>(<span class="st">"Import"</span>);
+}</pre>
+                </div>
+            </div>
+
+            <!-- Term: worksheet.Cell(r, c).GetString().Trim() -->
+            <div id="term-cell-getstring" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">worksheet.Cell(row, col).GetString().Trim()</span>
+                    <span class="term-category cat-excel">Cell Extraction</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Specific Row aur Column ke cell ka content safe text format me nikalta hai aur aage-peeche ke extra spaces remove karta hai.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">Column Mapping:</span><span class="detail-val">Cell(row, 1) = ProductCode | Cell(row, 2) = ProductName | Cell(row, 3) = Quantity | Cell(row, 4) = Price</span></div>
+                    <div class="detail-row"><span class="detail-label">Crash Proof:</span><span class="detail-val">Agar cell blank ho toh <code>GetString()</code> null-safe empty string return karta hai bina crash hue.</span></div>
+                </div>
+                <div class="code-box">
+<pre><span class="kw">for</span> (<span class="kw">int</span> row = <span class="nm">2</span>; row &lt;= lastRow; row++) {
+    <span class="kw">string</span> productCode = worksheet.<span class="fn">Cell</span>(row, <span class="nm">1</span>).<span class="fn">GetString</span>().<span class="fn">Trim</span>();
+    <span class="kw">string</span> productName = worksheet.<span class="fn">Cell</span>(row, <span class="nm">2</span>).<span class="fn">GetString</span>().<span class="fn">Trim</span>();
+    <span class="kw">string</span> quantityText = worksheet.<span class="fn">Cell</span>(row, <span class="nm">3</span>).<span class="fn">GetString</span>().<span class="fn">Trim</span>();
+    <span class="kw">string</span> priceText = worksheet.<span class="fn">Cell</span>(row, <span class="nm">4</span>).<span class="fn">GetString</span>().<span class="fn">Trim</span>();
+}</pre>
+                </div>
+            </div>
+
+            <!-- Term: int.TryParse & decimal.TryParse -->
+            <div id="term-tryparse" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">int.TryParse() & decimal.TryParse()</span>
+                    <span class="term-category cat-net">Safe Type Casting</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Text ko number me convert karne ka safe tareeka. Agar user ne quantity me galti se text likh diya (jaise "Ten" ya "abc"), toh program crash nahi hoga, balki false return karega aur error count me add kar dega.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">Audit Log:</span><span class="detail-val">Loop me <code>successCount</code> aur <code>errorCount</code> maintain hoti hai taaki user ko report mile ki 100 me se kitne rows import hue aur kitne fail hue.</span></div>
+                </div>
+                <div class="code-box">
+<pre><span class="kw">if</span> (!<span class="kw">int</span>.<span class="fn">TryParse</span>(quantityText, <span class="kw">out int</span> quantity) || quantity &lt; <span class="nm">0</span>) {
+    errorCount++;
+    <span class="kw">continue</span>; <span class="cm">// Skip bad row without crashing whole batch!</span>
+}
+
+<span class="kw">if</span> (!<span class="kw">decimal</span>.<span class="fn">TryParse</span>(priceText, <span class="kw">out decimal</span> price) || price &lt; <span class="nm">0</span>) {
+    errorCount++;
+    <span class="kw">continue</span>;
+}</pre>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- SECTION 4: CONTROLLER, FILE SYSTEM & SECURITY -->
+        <!-- ============================================================== -->
+        <div class="section-header">
+            <h2>🛡️ 4. Controller Layer, Image Storage & Security</h2>
+            <span class="file-pill">ProductController.cs & ASP.NET Core</span>
+        </div>
+
+        <div class="term-grid">
+
+            <!-- Term: [ValidateAntiForgeryToken] -->
+            <div id="term-validateantiforgery" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">[ValidateAntiForgeryToken]</span>
+                    <span class="term-category cat-net">Security Filter</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> ASP.NET Core Action Filter jo ensure karta hai ki request kisi unauthorized 3rd-party website se hack karke nahi bheji gayi (Anti-CSRF).
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">Applied On:</span><span class="detail-val"><code>Add [HttpPost]</code>, <code>Edit [HttpPost]</code>, <code>Delete [HttpPost]</code>, <code>Import [HttpPost]</code>.</span></div>
+                    <div class="detail-row"><span class="detail-label">Failure:</span><span class="detail-val">Agar token missing ya invalid ho toh seedha <code>HTTP 400 Bad Request</code> throw karega.</span></div>
+                </div>
+                <div class="code-box">
+<pre>[<span class="fn">HttpPost</span>]
+[<span class="fn">ValidateAntiForgeryToken</span>]
+<span class="kw">public</span> IActionResult <span class="fn">Delete</span>(<span class="kw">int</span> id) { ... }</pre>
+                </div>
+            </div>
+
+            <!-- Term: SaveImage() & Guid -->
+            <div id="term-saveimage" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">SaveImage() & Guid.NewGuid()</span>
+                    <span class="term-category cat-net">File System Handler</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Uploaded product image ko validate karta hai (whitelist extension: .jpg, .png, .webp; size &lt; 5MB) aur ek unique Globally Unique Identifier (GUID) naam generate karke <code>wwwroot/Uploads/Products</code> me save karta hai.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">Kyu GUID:</span><span class="detail-val">Agar 2 users same name "photo.jpg" upload karein toh ek doosre ko overwrite na kare. Unique filename banti hai (e.g. <code>a3f89b...jpg</code>).</span></div>
+                </div>
+                <div class="code-box">
+<pre><span class="kw">string</span> fileName = Guid.<span class="fn">NewGuid</span>().<span class="fn">ToString</span>(<span class="st">"N"</span>) + extension;
+<span class="kw">string</span> filePath = Path.<span class="fn">Combine</span>(uploadFolder, fileName);
+<span class="kw">using var</span> stream = <span class="kw">new</span> <span class="fn">FileStream</span>(filePath, FileMode.Create);
+<span class="kw">await</span> imageFile.<span class="fn">CopyToAsync</span>(stream);
+<span class="kw">return</span> <span class="st">"/Uploads/Products/"</span> + fileName;</pre>
+                </div>
+            </div>
+
+            <!-- Term: TempData -->
+            <div id="term-tempdata" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">TempData["SuccessMessage"]</span>
+                    <span class="term-category cat-net">Session Flash Storage</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> Short-lived dictionary storage jo Post-Redirect-Get (PRG) pattern me redirect hone ke baad agli request me notification message display karne ke liye data hold karta hai. Read hone ke baad automatically clean ho jata hai.
+                </div>
+                <div class="code-box">
+<pre>TempData[<span class="st">"SuccessMessage"</span>] = <span class="st">"Product saved successfully."</span>;
+<span class="kw">return</span> <span class="fn">RedirectToAction</span>(<span class="st">"Index"</span>, <span class="st">"Dashboard"</span>);</pre>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- SECTION 5: ADO.NET, DATATABLE & STORED PROCEDURES -->
+        <!-- ============================================================== -->
+        <div class="section-header">
+            <h2>🗄️ 5. ADO.NET, DataTable & Database Engine</h2>
+            <span class="file-pill">DbHelper.cs, ProductDAL.cs & SQL Server</span>
+        </div>
+
+        <div class="term-grid">
+
+            <!-- Term: System.Data.DataTable -->
+            <div id="term-datatable" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">System.Data.DataTable</span>
+                    <span class="term-category cat-sql">In-Memory Table</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> ADO.NET ka in-memory tabular data structure jo SQL database ke result set ko rows aur columns me server memory me store karta hai (Disconnected Architecture).
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">File:</span><span class="detail-val">DbHelper.cs:L35, ProductBAL.cs:L19</span></div>
+                    <div class="detail-row"><span class="detail-label">Nature:</span><span class="detail-val">Iske andar har column ka data <code>object</code> type me boxed hota hai, isliye isko strongly-typed primitives me cast karna padta hai.</span></div>
+                </div>
+                <div class="code-box">
+<pre>DataTable dt = _productBAL.<span class="fn">GetAllProducts</span>();
+<span class="cm">// dt.Rows.Count tells total active products fetched</span></pre>
+                </div>
+            </div>
+
+            <!-- Term: DBNull.Value -->
+            <div id="term-dbnull" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">row["Col"] == DBNull.Value</span>
+                    <span class="term-category cat-sql">SQL Null Checker</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> SQL Server ka <code>NULL</code> C# ke standard <code>null</code> ke barabar nahi hota! ADO.NET me database ke NULL value ko <code>System.DBNull.Value</code> singleton object se represent kiya jata hai.
+                </div>
+                <div class="term-details">
+                    <div class="detail-row"><span class="detail-label">Why Critical:</span><span class="detail-val">Agar direct <code>Convert.ToInt32(row["Quantity"])</code> kiya aur database me NULL hua, toh 0 aayega par <code>(int)row["Quantity"]</code> se seedha <code>InvalidCastException</code> crash hoga! Isliye check zaroori hai.</span></div>
+                </div>
+                <div class="code-box">
+<pre>productCode = row[<span class="st">"ProductCode"</span>] == DBNull.Value 
+    ? <span class="st">""</span> 
+    : row[<span class="st">"ProductCode"</span>].<span class="fn">ToString</span>();
+
+quantity = row[<span class="st">"Quantity"</span>] == DBNull.Value 
+    ? <span class="nm">0</span> 
+    : Convert.<span class="fn">ToInt32</span>(row[<span class="st">"Quantity"</span>]);</pre>
+                </div>
+            </div>
+
+            <!-- Term: SqlDataAdapter.Fill() -->
+            <div id="term-sqldataadapter" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">SqlDataAdapter.Fill(dataTable)</span>
+                    <span class="term-category cat-sql">Bridge Adapter</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> ADO.NET ka bridge component jo SQL Server se connection open karta hai, command execute karta hai, incoming TDS byte streams ko read karke DataTable me rows create karta hai, aur automatically connection close/return karta hai!
+                </div>
+                <div class="code-box">
+<pre><span class="kw">using</span> SqlDataAdapter adapter = <span class="kw">new</span> <span class="fn">SqlDataAdapter</span>(command);
+DataTable dataTable = <span class="kw">new</span> <span class="fn">DataTable</span>();
+adapter.<span class="fn">Fill</span>(dataTable); <span class="cm">// Opens, executes, populates, and closes!</span>
+<span class="kw">return</span> dataTable;</pre>
+                </div>
+            </div>
+
+            <!-- Term: SP_Product_GetAll -->
+            <div id="term-sp-getall" class="term-card">
+                <div class="term-card-header">
+                    <span class="term-keyword">dbo.SP_Product_GetAll</span>
+                    <span class="term-category cat-sql">Stored Procedure</span>
+                </div>
+                <div class="term-meaning">
+                    <strong>Iska Matlab:</strong> SQL Server level compiled database procedure. Direct SQL string query likhne se behtar SP execute hota hai kyuki ye pre-compiled rehta hai aur SQL Injection se 100% immune hota hai.
+                </div>
+                <div class="code-box">
+<pre><span class="kw">CREATE OR ALTER PROCEDURE</span> dbo.SP_Product_GetAll
+<span class="kw">AS BEGIN</span>
+    <span class="kw">SET NOCOUNT ON</span>;
+    <span class="kw">SELECT</span> ProductId, ProductCode, ProductName, Quantity, Price, ImagePath, IsActive
+    <span class="kw">FROM</span> dbo.Products
+    <span class="kw">WHERE</span> IsActive = <span class="nm">1</span>           <span class="cm">-- Soft delete filter</span>
+    <span class="kw">ORDER BY</span> ProductId <span class="kw">DESC</span>;     <span class="cm">-- Newest first</span>
+<span class="kw">END</span>;</pre>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- FLOATING BACK TO TOP -->
+    <a href="#" class="back-to-top">⬆️ Back to Top</a>
+
+    <script>
+        function navigateToTerm(termId) {
+            if (!termId) return;
+
+            const element = document.getElementById(termId);
+            if (element) {
+                // Remove existing highlight
+                document.querySelectorAll('.term-card').forEach(c => c.classList.remove('highlight-target'));
+
+                // Smooth scroll into view
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                // Add pulsing highlight class
+                element.classList.add('highlight-target');
+
+                // Auto remove highlight after 3 seconds
+                setTimeout(() => {
+                    element.classList.remove('highlight-target');
+                }, 3500);
+            }
+        }
+    </script>
+</body>
+</html>
